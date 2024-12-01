@@ -1,0 +1,49 @@
+{% extends 'jobs/base.html' %}
+
+{% block title %}{{ category.name }} 채용정보{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <!-- 카테고리 헤더 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold mb-2">{{ category.name }}</h1>
+        <p class="text-gray-600">{{ category.description }}</p>
+    </div>
+
+    <!-- 하위 카테고리 목록 -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold mb-6">세부 직종</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {% for subcategory in category.subcategories.all %}
+            <a href="{% url 'jobs:job-list' subcategory.id %}" 
+               class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <h3 class="text-lg font-bold mb-2">{{ subcategory.name }}</h3>
+                <p class="text-gray-600">
+                    채용 {{ subcategory.jobs.count }}건
+                </p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 최근 채용정보 -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold mb-6">{{ category.name }} 최근 채용정보</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for job in category.jobs.all|slice:":6" %}
+            <a href="{% url 'jobs:job-detail' job.id %}" 
+               class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <h3 class="font-bold mb-2">{{ job.title }}</h3>
+                <p class="text-gray-600 mb-2">{{ job.company }}</p>
+                <p class="text-sm text-gray-500">
+                    {{ job.location }} | {{ job.get_work_type_display }}
+                </p>
+                <p class="text-blue-600 font-bold mt-2">
+                    {{ job.salary }}
+                </p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

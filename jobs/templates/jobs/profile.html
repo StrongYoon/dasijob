@@ -1,0 +1,40 @@
+{% extends 'jobs/base.html' %}
+
+{% block title %}프로필{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">프로필</h2>
+            <a href="{% url 'jobs:profile_update' %}" 
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                수정하기
+            </a>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="text-sm text-gray-600">사용자 이름</label>
+                <p class="text-lg font-medium">{{ user.username }}</p>
+            </div>
+            
+            <div>
+                <label class="text-sm text-gray-600">이메일</label>
+                <p class="text-lg font-medium">{{ user.email }}</p>
+            </div>
+            
+            <div>
+                <label class="text-sm text-gray-600">이름</label>
+                <p class="text-lg font-medium">
+                    {% if user.first_name or user.last_name %}
+                        {{ user.first_name }} {{ user.last_name }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

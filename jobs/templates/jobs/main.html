@@ -1,0 +1,56 @@
+{% extends 'jobs/base.html' %}
+
+{% block title %}시니어를 위한 구인구직 플랫폼{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <!-- 검색 섹션 -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4">채용정보 찾기</h2>
+        <form method="get" action="{% url 'jobs:job-search' %}" class="flex gap-4">
+            <input type="text" name="keyword" placeholder="직종, 기업명 검색"
+                   class="flex-1 p-3 border rounded-lg text-lg">
+            <button type="submit"
+                    class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg">
+                검색하기
+            </button>
+        </form>
+    </div>
+
+    <!-- 직종 카테고리 (한 번만 표시) -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold mb-6">직종별 채용정보</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {% for category in categories %}
+            <a href="{% url 'jobs:category-detail' category.id %}"
+               class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <h3 class="text-xl font-bold mb-2">{{ category.name }}</h3>
+                <p class="text-gray-600">
+                    채용 {{ category.jobs.count }}건
+                </p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 최근 채용정보 -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold mb-6">최근 채용정보</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for job in recent_jobs %}
+            <a href="{% url 'jobs:job-detail' job.id %}"
+               class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <h3 class="font-bold mb-2">{{ job.title }}</h3>
+                <p class="text-gray-600 mb-2">{{ job.company }}</p>
+                <p class="text-sm text-gray-500">
+                    {{ job.location }} | {{ job.get_work_type_display }}
+                </p>
+                <p class="text-blue-600 font-bold mt-2">
+                    {{ job.salary }}
+                </p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

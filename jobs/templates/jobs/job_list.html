@@ -1,0 +1,26 @@
+{% extends 'jobs/base.html' %}
+
+{% block title %}채용정보{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <h2 class="text-2xl font-bold mb-6">채용정보</h2>
+    <div class="grid gap-4">
+        {% for job in jobs %}
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="font-bold text-xl mb-2">{{ job.title }}</h3>
+                <p class="text-gray-600">{{ job.company }}</p>
+                <div class="flex justify-between items-center mt-4">
+                    <div class="text-gray-500">
+                        {{ job.location }} | {{ job.get_work_type_display }}
+                    </div>
+                    <div class="text-blue-600 font-bold">
+                        {{ job.salary }}
+                    </div>
+                </div>
+                <a href="{% url 'jobs:job-detail' job.id %}" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">상세보기</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

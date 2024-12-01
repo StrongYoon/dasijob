@@ -1,0 +1,16 @@
+{% extends 'jobs/base.html' %}
+
+{% block title %}직종 카테고리{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for category in categories %}
+    <a href="{% url 'jobs:subcategory-list' category.id %}"
+       class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+        <i class="fas {{ category.icon }} text-3xl text-blue-600 mb-4"></i>
+        <h2 class="text-xl font-bold mb-2">{{ category.name }}</h2>
+        <p class="text-gray-600">{{ category.description }}</p>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'jobs/base.html' %}
+
+{% block title %}프로필 수정{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+        <!-- 헤더 -->
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">프로필 수정</h2>
+            <a href="{% url 'jobs:profile' %}"
+               class="text-gray-600 hover:text-gray-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- 폼 -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- 알림 메시지 -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative mb-6" role="alert">
+                        <span class="block sm:inline">{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- 사용자명 -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700" for="{{ form.username.id_for_label }}">
+                    사용자명
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 이메일 -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700" for="{{ form.email.id_for_label }}">
+                    이메일
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 이름 -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700" for="{{ form.first_name.id_for_label }}">
+                    이름
+                </label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 성 -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700" for="{{ form.last_name.id_for_label }}">
+                    성
+                </label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.last_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 버튼 그룹 -->
+            <div class="flex justify-end space-x-4 pt-6">
+                <a href="{% url 'jobs:profile' %}"
+                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    취소
+                </a>
+                <button type="submit"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    저장하기
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

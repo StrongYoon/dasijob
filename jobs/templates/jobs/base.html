@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다시잡 - {% block title %}{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        @keyframes fadeEffect {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            40% { opacity: 1; }
+            60% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        .logo-container {
+            position: relative;
+            width: 280px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-item {
+            position: absolute;
+            left: 0;
+            opacity: 0;
+            animation: fadeEffect 5s infinite;
+            transition: opacity 0.5s ease;
+        }
+
+        .logo-image {
+            height: 68px;
+            width: 68px;
+            object-fit: contain;
+        }
+
+        .brand-text {
+            font-family: 'Pretendard', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+            transform: skew(-12deg);
+        }
+
+        .logo-item:nth-child(2) {
+            animation-delay: 2.5s;
+        }
+
+        nav {
+            background: linear-gradient(90deg, #1e40af 0%, #2563eb 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-item:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;  /* margin-top 대신 top 사용 */
+            padding-top: 0.5rem;  /* 간격은 padding으로 처리 */
+            min-width: 200px;
+            z-index: 50;
+        }
+
+        .dropdown-container:hover .dropdown-menu {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="text-white p-4">
+    <div class="container mx-auto">
+        <div class="flex justify-between items-center">
+            <!-- 왼쪽: 로고 -->
+            <div class="logo-container">
+                <div class="logo-item">
+                    <img src="{% static 'images/logo.png' %}" alt="다시잡 로고" class="logo-image">
+                </div>
+                <div class="logo-item flex items-center">
+                    <span class="brand-text">다시잡</span>
+                </div>
+            </div>
+
+            <!-- 오른쪽: 로그인/회원가입 버튼 -->
+            <div class="flex items-center space-x-4 ml-auto">
+                {% if user.is_authenticated %}
+                    <div class="dropdown-container">
+                        <button class="text-white">
+                            <span>{{ user.username }}님</span>
+                        </button>
+                        <div class="dropdown-menu bg-white rounded-lg shadow-xl">
+                           <a href="{% url 'jobs:profile' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">내 프로필</a>
+                           <a href="{% url 'jobs:profile_update' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">프로필 수정</a>
+                           <a href="{% url 'jobs:job-create' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">채용공고 등록</a>
+                           <div class="border-t border-gray-100"></div>
+                           <a href="{% url 'jobs:logout' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">로그아웃</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'jobs:login' %}" class="text-white hover:text-gray-200">로그인</a>
+                    <a href="{% url 'jobs:signup' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-gray-100">회원가입</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+    <main class="container mx-auto py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 다시잡. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

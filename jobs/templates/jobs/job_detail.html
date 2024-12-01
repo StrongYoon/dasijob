@@ -1,0 +1,46 @@
+{% extends 'jobs/base.html' %}
+
+{% block title %}{{ job.title }} - {{ job.company }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <!-- 채용공고 헤더 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">{{ job.title }}</h1>
+            <p class="text-xl text-gray-600">{{ job.company }}</p>
+        </div>
+
+        <!-- 주요 정보 -->
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div>
+                <p class="text-gray-600"><span class="font-bold">근무지역:</span> {{ job.location }}</p>
+                <p class="text-gray-600"><span class="font-bold">근무형태:</span> {{ job.get_work_type_display }}</p>
+            </div>
+            <div>
+                <p class="text-gray-600"><span class="font-bold">급여:</span> {{ job.salary }}</p>
+                <p class="text-gray-600"><span class="font-bold">마감일:</span> {{ job.deadline }}</p>
+            </div>
+        </div>
+
+        <!-- 상세 내용 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">직무 설명</h2>
+            <div class="text-gray-700 whitespace-pre-line">{{ job.description }}</div>
+        </div>
+
+        <!-- 자격 요건 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">자격 요건</h2>
+            <div class="text-gray-700 whitespace-pre-line">{{ job.requirements }}</div>
+        </div>
+
+        <!-- 지원하기 버튼 -->
+        <div class="mt-8">
+            <a href="#" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg text-lg hover:bg-blue-700">
+                지원하기
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
