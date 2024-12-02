@@ -93,8 +93,59 @@ class JobListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
+        queryset = Job.objects.all()
+
+        # 카테고리 필터링
         subcategory_id = self.kwargs.get('subcategory_id')
-        return Job.objects.filter(subcategory_id=subcategory_id).order_by('-created_at')
+        if subcategory_id:
+            queryset = queryset.filter(subcategory_id=subcategory_id)
+
+        # 검색 필터링
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(company__icontains=search) |
+                Q(description__icontains=search)
+            )
+
+        # 지역 필터링
+        location = self.request.GET.get('location')
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+
+        # 경력 필터링
+        experience = self.request.GET.get('experience')
+        if experience:
+            queryset = queryset.filter(experience_required__icontains=experience)
+
+        # 정렬
+        sort = self.request.GET.get('sort', '-created_at')
+        if sort == 'salary':
+            queryset = queryset.order_by('-salary')
+        elif sort == 'deadline':
+            queryset = queryset.order_by('deadline')
+        else:
+            queryset = queryset.order_by('-created_at')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        subcategory_id = self.kwargs.get('subcategory_id')
+        if subcategory_id:
+            context['subcategory'] = get_object_or_404(SubCategory, id=subcategory_id)
+            context['category_name'] = context['subcategory'].name
+        else:
+            context['category_name'] = "전체 채용정보"
+
+        # 현재 적용된 필터 값들 전달
+        context['current_search'] = self.request.GET.get('search', '')
+        context['current_location'] = self.request.GET.get('location', '')
+        context['current_experience'] = self.request.GET.get('experience', '')
+        context['current_sort'] = self.request.GET.get('sort', 'latest')
+
+        return context
 
 
 class SignUpView(CreateView):

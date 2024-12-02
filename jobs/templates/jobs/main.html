@@ -31,7 +31,7 @@
     <div class="row g-4">
         {% for category in categories %}
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="{% url 'jobs:category-detail' category.id %}" class="text-decoration-none">
+            <a href="{% url 'jobs:category_detail' category.id %}" class="text-decoration-none">
                 <div class="card h-100 shadow-sm hover-shadow">
                     <div class="card-body">
                         <h3 class="h5 card-title text-primary">{{ category.name }}</h3>
@@ -50,10 +50,8 @@
 <section class="container mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="display-6 mb-0">최근 채용정보</h2>
-        <a href="{% url 'jobs:job-list' subcategory_id=1 %}" class="btn btn-outline-primary">전체보기</a>
+        <a href="{% url 'jobs:job_list_by_category' subcategory_id=1 %}" class="btn btn-outline-primary">전체보기</a>
 
-
-{#        <a href="{% url 'jobs:job-list' %}" class="btn btn-outline-primary">전체보기</a>#} / 1202
     </div>
     <div class="row g-4">
         {% for job in recent_jobs %}
@@ -61,7 +59,7 @@
             <div class="card h-100 shadow-sm hover-shadow">
                 <div class="card-body">
                     <h3 class="h5 card-title mb-3">
-                        <a href="{% url 'jobs:job-detail' job.id %}" class="text-decoration-none text-dark">
+                        <a href="{% url 'jobs:job_detail' job.id %}" class="text-decoration-none text-dark">
                             {{ job.title }}
                         </a>
                     </h3>
