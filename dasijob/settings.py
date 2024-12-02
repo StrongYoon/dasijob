@@ -29,10 +29,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure--sw4l!@9*9v56ucygrjw3qqg)sol#6^79**d9*4kpyilzf!t+p"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'dasijob.onrender.com', 'dasijob.net', 'localhost']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://dasijob.onrender.com',
+    'https://dasijob.net'
+]
 
 # Application definition
 
@@ -126,6 +130,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
