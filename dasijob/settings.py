@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
-import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -86,12 +85,8 @@ WSGI_APPLICATION = "dasijob.wsgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dasijob_db',
-        'USER': 'dasijob_db_user',
-        'PASSWORD': 'TaKnnJdJ3zsYBBtn6K7uKY3HnAdzBWNA',
-        'HOST': 'dpg-ct6jmm52ng1s7393u6og-a',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -148,5 +143,3 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'itnerdapc@gmail.com'
 EMAIL_HOST_PASSWORD = 'ydh456879'
 
-print("Loaded DATABASE_URL:", os.getenv('DATABASE_URL'))
-print("Parsed DB Config:", dj_database_url.parse(os.getenv('DATABASE_URL')))
