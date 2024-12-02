@@ -1,0 +1,241 @@
+{% extends 'jobs/base.html' %}
+{% block title %}이력서 미리보기{% endblock %}
+{% block content %}
+
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-2">{{ resume.title }}</h1>
+                    <p class="text-muted mb-0">최종 수정: {{ resume.updated_at|date:"Y.m.d H:i" }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" onclick="printResume()">
+                        <i class="bi bi-printer"></i> PDF 저장
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-palette"></i> 템플릿 변경
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="?template=modern">모던</a></li>
+                            <li><a class="dropdown-item" href="?template=classic">클래식</a></li>
+                            <li><a class="dropdown-item" href="?template=simple">심플</a></li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'jobs:resume_edit' resume.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> 수정하기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div class="row">
+        <div class="col-lg-9">
+            <!-- Resume Preview -->
+            <div class="card border-0 shadow-lg mb-4" id="resumePreview">
+                <div class="card-body p-5">
+                    <!-- Personal Info -->
+                    <div class="mb-5">
+                        <h2 class="h1 mb-4">{{ user.get_full_name }}</h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <i class="bi bi-envelope me-2"></i>{{ user.email }}
+                                </p>
+                                <p class="mb-2">
+                                    <i class="bi bi-phone me-2"></i>{{ user.phone_number }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <i class="bi bi-geo-alt me-2"></i>{{ user.address }}
+                                </p>
+                                {% if user.website %}
+                                <p class="mb-2">
+                                    <i class="bi bi-globe me-2"></i>{{ user.website }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Summary -->
+                    <div class="mb-5">
+                        <h3 class="h4 border-bottom pb-2 mb-4">자기소개</h3>
+                        <p class="text-justify">{{ resume.introduction|linebreaks }}</p>
+                    </div>
+
+                    <!-- Work Experience -->
+                    <div class="mb-5">
+                        <h3 class="h4 border-bottom pb-2 mb-4">경력사항</h3>
+                        {% if resume.experience_set.all %}
+                            {% for exp in resume.experience_set.all %}
+                            <div class="mb-4">
+                                <h4 class="h5 mb-1">{{ exp.company }}</h4>
+                                <p class="text-muted mb-2">
+                                    {{ exp.position }} | {{ exp.start_date|date:"Y.m" }} - 
+                                    {% if exp.is_current %}현재{% else %}{{ exp.end_date|date:"Y.m" }}{% endif %}
+                                </p>
+                                <p>{{ exp.description|linebreaks }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">등록된 경력사항이 없습니다.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Education -->
+                    <div class="mb-5">
+                        <h3 class="h4 border-bottom pb-2 mb-4">학력사항</h3>
+                        {% if resume.education_set.all %}
+                            {% for edu in resume.education_set.all %}
+                            <div class="mb-4">
+                                <h4 class="h5 mb-1">{{ edu.school }}</h4>
+                                <p class="text-muted mb-2">
+                                    {{ edu.major }} | {{ edu.degree }} | {{ edu.graduation_year|date:"Y.m" }}
+                                </p>
+                                {% if edu.gpa %}
+                                <p>학점: {{ edu.gpa }}/4.5</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">등록된 학력사항이 없습니다.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="mb-5">
+                        <h3 class="h4 border-bottom pb-2 mb-4">보유 기술</h3>
+                        {% if resume.skills %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for skill in resume.skills.split(',') %}
+                            <span class="badge bg-light text-dark">{{ skill.strip }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                            <p class="text-muted">등록된 기술이 없습니다.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Certificates -->
+                    <div class="mb-5">
+                        <h3 class="h4 border-bottom pb-2 mb-4">자격증</h3>
+                        {% if resume.certificate_set.all %}
+                            {% for cert in resume.certificate_set.all %}
+                            <div class="mb-3">
+                                <h4 class="h5 mb-1">{{ cert.name }}</h4>
+                                <p class="text-muted mb-0">
+                                    {{ cert.organization }} | 취득일: {{ cert.acquisition_date|date:"Y.m" }}
+                                </p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">등록된 자격증이 없습니다.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body">
+                    <h4 class="h5 mb-4">이력서 정보</h4>
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1">공개 설정</p>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="resumeVisibility" 
+                                   {% if resume.is_public %}checked{% endif %} onchange="toggleVisibility()">
+                            <label class="form-check-label" for="resumeVisibility">
+                                {% if resume.is_public %}공개{% else %}비공개{% endif %}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1">작성 완료도</p>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: {{ completion_rate }}%">
+                                {{ completion_rate }}%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <p class="small text-muted mb-1">첨부파일</p>
+                        {% if resume.attachments.all %}
+                            {% for attachment in resume.attachments.all %}
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-file-earmark me-2"></i>
+                                <span>{{ attachment.filename }}</span>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="small text-muted mb-0">첨부된 파일이 없습니다</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<!-- Custom CSS -->
+<style>
+.card {
+    border-radius: 15px;
+}
+@media print {
+    .no-print {
+        display: none;
+    }
+    .card {
+        box-shadow: none !important;
+    }
+}
+/* Template Styles */
+.template-modern {
+    font-family: 'Segoe UI', sans-serif;
+}
+.template-classic {
+    font-family: 'Times New Roman', serif;
+}
+.template-simple {
+    font-family: Arial, sans-serif;
+}
+</style>
+
+<!-- Custom JavaScript -->
+<script>
+function printResume() {
+    window.print();
+}
+
+function toggleVisibility() {
+    const checkbox = document.getElementById('resumeVisibility');
+    fetch(`/api/resume/${resumeId}/toggle-visibility/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify({
+            is_public: checkbox.checked
+        })
+    }).then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const label = checkbox.nextElementSibling;
+            label.textContent = checkbox.checked ? '공개' : '비공개';
+        }
+    });
+}
+</script>
+{% endblock %}

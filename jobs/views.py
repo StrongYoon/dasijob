@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta
 
 from django import forms
@@ -11,7 +12,8 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView, PasswordResetCompleteView
 )
 from django.core.mail import send_mail
-from django.db.models import Q
+from django.db.models import Q, Count, Avg
+from django.db.models.functions import TruncDate
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -22,8 +24,16 @@ from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.views.generic import UpdateView
 
 from .forms import SignUpForm, UserUpdateForm, ResumeForm
-from .models import JobCategory, Job, EmailVerification, Resume
+from .models import JobCategory, Job, EmailVerification, Resume, Notification
 
+
+class NotificationListView(LoginRequiredMixin, ListView):
+    model = Notification
+    template_name = 'jobs/notification_list.html'
+    context_object_name = 'notifications'
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)
 
 # SignUpForm 정의
 # class SignUpForm(UserCreationForm):
@@ -370,3 +380,107 @@ class ResumeUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, '이력서가 성공적으로 수정되었습니다.')
         return super().form_valid(form)
+
+
+from django.views.generic import ListView
+
+
+class JobSearchView(ListView):
+    model = Job
+    template_name = 'jobs/search_results.html'
+    context_object_name = 'jobs'
+    paginate_by = 9  # 한 페이지에 9개씩 표시
+
+    def get_queryset(self):
+        queryset = Job.objects.all()
+        q = self.request.GET.get('q')
+        location = self.request.GET.get('location')
+        job_type = self.request.GET.get('job_type')
+
+        if q:
+            queryset = queryset.filter(
+                Q(title__icontains=q) |
+                Q(company__icontains=q) |
+                Q(description__icontains=q)
+            )
+
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+
+        if job_type:
+            queryset = queryset.filter(work_type=job_type)
+
+        return queryset.order_by('-created_at')
+
+
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'jobs/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        context.update({
+            'total_applications': Application.objects.filter(user=user).count(),
+            'in_progress': Application.objects.filter(user=user, status='pending').count(),
+            'upcoming_interviews': Application.objects.filter(user=user, status='interview').count(),
+            'saved_jobs': Job.objects.filter(bookmarks=user).count(),
+            'recent_applications': Application.objects.filter(user=user).order_by('-applied_at')[:5],
+            'recommended_jobs': Job.objects.all()[:4],  # 추천 로직은 나중에 구현
+            'completed_resumes': Resume.objects.filter(user=user, is_completed=True).count(),
+            'draft_resumes': Resume.objects.filter(user=user, is_completed=False).count(),
+            'upcoming_deadlines': Job.objects.filter(deadline__gte=timezone.now()).order_by('deadline')[:5],
+        })
+        return context
+
+class ResumePreviewView(LoginRequiredMixin, DetailView):
+    model = Resume
+    template_name = 'jobs/resume_preview.html'
+    context_object_name = 'resume'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['completion_rate'] = self.object.calculate_completion_rate()
+        return context
+
+
+class JobAnalyticsView(TemplateView):
+    template_name = 'jobs/job_analytics.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        period = self.request.GET.get('period', '30')
+
+        # 기본 통계
+        context['total_jobs'] = Job.objects.count()
+        context['avg_salary'] = Job.objects.aggregate(Avg('salary'))['salary__avg']
+        context['avg_experience'] = Job.objects.aggregate(Avg('experience_required'))['experience_required__avg']
+        context['avg_applicants'] = \
+        JobApplication.objects.values('job').annotate(count=Count('id')).aggregate(Avg('count'))['count__avg']
+
+        # 채용 추이 데이터
+        trends = Job.objects.annotate(
+            date=TruncDate('created_at')
+        ).values('date').annotate(
+            count=Count('id')
+        ).order_by('date')
+
+        context['job_trends_data'] = json.dumps([item['count'] for item in trends])
+        context['job_trends_labels'] = json.dumps([item['date'].strftime('%Y-%m-%d') for item in trends])
+
+        # 직종별 데이터
+        categories = Job.objects.values('category__name').annotate(count=Count('id'))
+        context['category_data'] = json.dumps([item['count'] for item in categories])
+        context['category_labels'] = json.dumps([item['category__name'] for item in categories])
+
+        # 지역별 데이터
+        regions = Job.objects.values('location').annotate(count=Count('id'))
+        context['region_data'] = json.dumps([item['count'] for item in regions])
+        context['region_labels'] = json.dumps([item['location'] for item in regions])
+
+        # 인기 기술 스택
+        context['popular_skills'] = Job.objects.values('required_skills').annotate(
+            count=Count('id')
+        ).order_by('-count')[:9]
+
+        return context

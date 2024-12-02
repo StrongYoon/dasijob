@@ -1,20 +1,28 @@
 {% extends 'jobs/base.html' %}
-
 {% block title %}비밀번호 재설정 메일 발송{% endblock %}
-
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-md">
-    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
-        <div class="text-blue-500 mb-4">
-            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"></path>
-            </svg>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-4 text-center">
+                    <div class="display-6 text-primary mb-4">
+                        <i class="bi bi-envelope-check" style="font-size: 4rem;"></i>
+                    </div>
+
+                    <h1 class="h3 mb-3">이메일을 확인해주세요</h1>
+                    <p class="text-muted mb-4">
+                        비밀번호 재설정 링크를 이메일로 발송했습니다.<br>
+                        이메일을 확인하고 링크를 클릭하여<br>
+                        새로운 비밀번호를 설정해주세요.
+                    </p>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        이메일이 도착하지 않았다면 스팸함을 확인해주세요.
+                    </div>
+                </div>
+            </div>
         </div>
-        <h2 class="text-2xl font-bold mb-4">이메일을 확인해주세요</h2>
-        <p class="text-gray-600 mb-6">
-            비밀번호 재설정 링크를 이메일로 발송했습니다.<br>
-            이메일을 확인하고 링크를 클릭하여 새로운 비밀번호를 설정해주세요.
-        </p>
     </div>
 </div>
-{% endblock %}

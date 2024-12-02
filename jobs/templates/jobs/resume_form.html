@@ -1,78 +1,288 @@
 {% extends 'jobs/base.html' %}
-
 {% block title %}{% if form.instance.pk %}이력서 수정{% else %}새 이력서 작성{% endif %}{% endblock %}
-
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-3xl">
-    <div class="bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold mb-8">
-            {% if form.instance.pk %}이력서 수정{% else %}새 이력서 작성{% endif %}
-        </h2>
 
-        <form method="post" class="space-y-6">
-            {% csrf_token %}
-
-            <!-- 이력서 제목 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">이력서 제목</label>
-                {{ form.title }}
-                {% if form.title.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.title.errors.0 }}</p>
-                {% endif %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <!-- Form Progress -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" id="formProgress"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <small class="text-muted">기본 정보</small>
+                        <small class="text-muted">필수 정보</small>
+                        <small class="text-muted">추가 정보</small>
+                        <small class="text-muted">완료</small>
+                    </div>
+                </div>
             </div>
 
-            <!-- 학력 사항 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">학력 사항</label>
-                <p class="text-xs text-gray-500 mb-2">학교명, 전공, 졸업여부 등을 작성해주세요.</p>
-                {{ form.education }}
-                {% if form.education.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.education.errors.0 }}</p>
-                {% endif %}
-            </div>
+            <!-- Main Form Card -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white py-3">
+                    <h1 class="h4 mb-0">
+                        {% if form.instance.pk %}
+                            이력서 수정
+                        {% else %}
+                            새 이력서 작성
+                        {% endif %}
+                    </h1>
+                </div>
 
-            <!-- 경력 사항 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">경력 사항</label>
-                <p class="text-xs text-gray-500 mb-2">회사명, 근무기간, 담당업무 등을 작성해주세요.</p>
-                {{ form.experience }}
-                {% if form.experience.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.experience.errors.0 }}</p>
-                {% endif %}
-            </div>
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
 
-            <!-- 보유 기술 및 자격증 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">보유 기술 및 자격증</label>
-                <p class="text-xs text-gray-500 mb-2">자격증명, 취득일, 특기사항 등을 작성해주세요.</p>
-                {{ form.skills }}
-                {% if form.skills.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.skills.errors.0 }}</p>
-                {% endif %}
-            </div>
+                        <!-- Basic Information -->
+                        <section class="mb-5">
+                            <h2 class="h5 mb-4">
+                                <i class="bi bi-person-vcard me-2"></i>기본 정보
+                            </h2>
 
-            <!-- 자기소개 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">자기소개</label>
-                <p class="text-xs text-gray-500 mb-2">업무에 임하는 자세, 직무 관련 강점 등을 작성해주세요.</p>
-                {{ form.introduction }}
-                {% if form.introduction.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.introduction.errors.0 }}</p>
-                {% endif %}
-            </div>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label">이력서 제목<span class="text-danger">*</span></label>
+                                    {{ form.title|add_class:"form-control"|attr:"placeholder:채용담당자가 주목할 만한 이력서 제목을 입력해주세요" }}
+                                    {% if form.title.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>
+                                    {% endif %}
+                                    <div class="form-text">예: "10년차 시니어 개발자", "경영 분석 전문가"</div>
+                                </div>
 
-            <!-- 버튼 그룹 -->
-            <div class="flex justify-end space-x-4 pt-6">
-                <a href="{% url 'jobs:resume_list' %}" 
-                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                    취소
-                </a>
-                <button type="submit" 
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    {% if form.instance.pk %}수정완료{% else %}작성완료{% endif %}
-                </button>
+                                <div class="col-md-6">
+                                    <label class="form-label">희망 근무지역<span class="text-danger">*</span></label>
+                                    <select class="form-select" required>
+                                        <option value="">선택해주세요</option>
+                                        <option>서울</option>
+                                        <option>경기</option>
+                                        <option>인천</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">희망 연봉<span class="text-danger">*</span></label>
+                                    <select class="form-select" required>
+                                        <option value="">선택해주세요</option>
+                                        <option>회사 내규에 따름</option>
+                                        <option>3,000~4,000만원</option>
+                                        <option>4,000~5,000만원</option>
+                                        <option>5,000만원 이상</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Education -->
+                        <section class="mb-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="h5 mb-0">
+                                    <i class="bi bi-mortarboard me-2"></i>학력 사항
+                                </h2>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="addEducation">
+                                    <i class="bi bi-plus"></i> 학력 추가
+                                </button>
+                            </div>
+
+                            <div id="educationContainer">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">학교명<span class="text-danger">*</span></label>
+                                                {{ form.education|add_class:"form-control"|attr:"placeholder:학교명을 입력해주세요" }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">전공</label>
+                                                <input type="text" class="form-control" placeholder="전공을 입력해주세요">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">졸업상태<span class="text-danger">*</span></label>
+                                                <select class="form-select" required>
+                                                    <option value="">선택해주세요</option>
+                                                    <option>졸업</option>
+                                                    <option>재학중</option>
+                                                    <option>중퇴</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">졸업년도</label>
+                                                <input type="month" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Experience -->
+                        <section class="mb-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="h5 mb-0">
+                                    <i class="bi bi-briefcase me-2"></i>경력 사항
+                                </h2>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="addExperience">
+                                    <i class="bi bi-plus"></i> 경력 추가
+                                </button>
+                            </div>
+
+                            <div id="experienceContainer">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        {{ form.experience|add_class:"form-control"|attr:"placeholder:회사명, 근무기간, 담당업무 등을 작성해주세요" }}
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">회사명<span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" placeholder="회사명을 입력해주세요">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">부서/직책</label>
+                                                <input type="text" class="form-control" placeholder="부서/직책을 입력해주세요">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">입사일<span class="text-danger">*</span></label>
+                                                <input type="month" class="form-control">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">퇴사일</label>
+                                                <input type="month" class="form-control">
+                                                <div class="form-check mt-2">
+                                                    <input class="form-check-input" type="checkbox" id="currentlyWorking">
+                                                    <label class="form-check-label" for="currentlyWorking">현재 재직중</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">주요 업무 및 성과<span class="text-danger">*</span></label>
+                                                <textarea class="form-control" rows="3" placeholder="주요 업무와 성과를 구체적으로 작성해주세요"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Skills -->
+                        <section class="mb-5">
+                            <h2 class="h5 mb-4">
+                                <i class="bi bi-trophy me-2"></i>보유 기술 및 자격증
+                            </h2>
+                            {{ form.skills|add_class:"form-control"|attr:"placeholder:보유한 기술과 자격증을 작성해주세요" }}
+
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">보유 기술</label>
+                                    <input type="text" class="form-control" placeholder="예: Python, Java, SQL">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">숙련도</label>
+                                    <select class="form-select">
+                                        <option>상</option>
+                                        <option>중</option>
+                                        <option>하</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="form-label">자격증</label>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" placeholder="자격증명">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="date" class="form-control" placeholder="취득일">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" placeholder="발행처">
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Introduction -->
+                        <section class="mb-5">
+                            <h2 class="h5 mb-4">
+                                <i class="bi bi-chat-quote me-2"></i>자기소개
+                            </h2>
+                            {{ form.introduction|add_class:"form-control"|attr:"rows:5"|attr:"placeholder:자신의 강점, 업무 스타일, 가치관 등을 자유롭게 작성해주세요" }}
+                        </section>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center border-top pt-4 mt-4">
+                            <a href="{% url 'jobs:resume_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> 취소
+                            </a>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check2"></i>
+                                    {% if form.instance.pk %}수정완료{% else %}작성완료{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<!-- Custom CSS -->
+<style>
+.card {
+    border-radius: 15px;
+}
+.form-control, .form-select {
+    padding: 0.75rem;
+}
+.progress {
+    border-radius: 10px;
+}
+.progress-bar {
+    background-color: #0d6efd;
+    width: 25%;
+}
+</style>
+
+<!-- Custom JavaScript -->
+<script>
+// Progress Bar Update
+document.querySelectorAll('input, select, textarea').forEach(element => {
+    element.addEventListener('change', updateProgress);
+});
+
+function updateProgress() {
+    const totalFields = document.querySelectorAll('input, select, textarea').length;
+    const filledFields = document.querySelectorAll('input:not([type="submit"]):valid, select:valid, textarea:valid').length;
+    const progress = (filledFields / totalFields) * 100;
+    document.getElementById('formProgress').style.width = progress + '%';
+}
+
+// Add Education Field
+document.getElementById('addEducation').addEventListener('click', function() {
+    const template = document.querySelector('#educationContainer .card').cloneNode(true);
+    template.querySelectorAll('input, select').forEach(input => input.value = '');
+    document.getElementById('educationContainer').appendChild(template);
+});
+
+// Add Experience Field
+document.getElementById('addExperience').addEventListener('click', function() {
+    const template = document.querySelector('#experienceContainer .card').cloneNode(true);
+    template.querySelectorAll('input, select, textarea').forEach(input => input.value = '');
+    document.getElementById('experienceContainer').appendChild(template);
+});
+
+// Currently Working Checkbox
+document.getElementById('currentlyWorking').addEventListener('change', function() {
+    const endDateInput = this.closest('.row').querySelector('input[type="month"]:last-of-type');
+    endDateInput.disabled = this.checked;
+    if (this.checked) {
+        endDateInput.value = '';
+    }
+});
+</script>
 {% endblock %}

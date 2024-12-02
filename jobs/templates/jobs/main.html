@@ -1,56 +1,130 @@
 {% extends 'jobs/base.html' %}
+{% load static %}
 
 {% block title %}시니어를 위한 구인구직 플랫폼{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4">
-    <!-- 검색 섹션 -->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 class="text-2xl font-bold mb-4">채용정보 찾기</h2>
-        <form method="get" action="{% url 'jobs:job-search' %}" class="flex gap-4">
-            <input type="text" name="keyword" placeholder="직종, 기업명 검색"
-                   class="flex-1 p-3 border rounded-lg text-lg">
-            <button type="submit"
-                    class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg">
-                검색하기
-            </button>
-        </form>
-    </div>
-
-    <!-- 직종 카테고리 (한 번만 표시) -->
-    <div class="mb-12">
-        <h2 class="text-2xl font-bold mb-6">직종별 채용정보</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {% for category in categories %}
-            <a href="{% url 'jobs:category-detail' category.id %}"
-               class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                <h3 class="text-xl font-bold mb-2">{{ category.name }}</h3>
-                <p class="text-gray-600">
-                    채용 {{ category.jobs.count }}건
-                </p>
-            </a>
-            {% endfor %}
+<!-- Hero Section with Search -->
+<section class="bg-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 mb-4">경험이 가치가 되는 곳</h1>
+                <p class="lead mb-4">당신의 경험과 지혜를 필요로 하는 기업을 만나보세요</p>
+                <!-- Search Form -->
+                <form class="d-flex justify-content-center" action="{% url 'jobs:job_search' %}" method="get">
+                    <div class="input-group input-group-lg" style="max-width: 600px;">
+                        <input type="text" class="form-control" name="q" placeholder="직무, 기업명, 지역 검색">
+                        <button class="btn btn-light" type="submit">
+                            <i class="bi bi-search"></i> 검색
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+</section>
 
-    <!-- 최근 채용정보 -->
-    <div class="mb-12">
-        <h2 class="text-2xl font-bold mb-6">최근 채용정보</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {% for job in recent_jobs %}
-            <a href="{% url 'jobs:job-detail' job.id %}"
-               class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                <h3 class="font-bold mb-2">{{ job.title }}</h3>
-                <p class="text-gray-600 mb-2">{{ job.company }}</p>
-                <p class="text-sm text-gray-500">
-                    {{ job.location }} | {{ job.get_work_type_display }}
-                </p>
-                <p class="text-blue-600 font-bold mt-2">
-                    {{ job.salary }}
-                </p>
+<!-- Job Categories Section -->
+<section class="container mb-5">
+    <h2 class="display-6 mb-4">직종별 채용정보</h2>
+    <div class="row g-4">
+        {% for category in categories %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="{% url 'jobs:category-detail' category.id %}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <div class="card-body">
+                        <h3 class="h5 card-title text-primary">{{ category.name }}</h3>
+                        <p class="card-text text-muted">
+                            채용 {{ category.jobs.count }}건
+                        </p>
+                    </div>
+                </div>
             </a>
-            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Recent Jobs Section -->
+<section class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="display-6 mb-0">최근 채용정보</h2>
+        <a href="{% url 'jobs:job-list' subcategory_id=1 %}" class="btn btn-outline-primary">전체보기</a>
+
+
+{#        <a href="{% url 'jobs:job-list' %}" class="btn btn-outline-primary">전체보기</a>#} / 1202
+    </div>
+    <div class="row g-4">
+        {% for job in recent_jobs %}
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm hover-shadow">
+                <div class="card-body">
+                    <h3 class="h5 card-title mb-3">
+                        <a href="{% url 'jobs:job-detail' job.id %}" class="text-decoration-none text-dark">
+                            {{ job.title }}
+                        </a>
+                    </h3>
+                    <p class="card-text mb-2">{{ job.company }}</p>
+                    <p class="card-text text-muted small mb-2">
+                        <i class="bi bi-geo-alt"></i> {{ job.location }}
+                    </p>
+                    <p class="card-text text-muted small mb-2">
+                        <i class="bi bi-briefcase"></i> {{ job.get_work_type_display }}
+                    </p>
+                    <p class="card-text text-primary">{{ job.salary }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Additional Features Section -->
+<section class="container mb-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check display-4 text-primary mb-3"></i>
+                    <h3 class="h4">검증된 채용정보</h3>
+                    <p class="text-muted">모든 채용정보는 검증 과정을 거쳐 제공됩니다</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-check display-4 text-primary mb-3"></i>
+                    <h3 class="h4">경력자 특화</h3>
+                    <p class="text-muted">시니어의 경험과 전문성을 존중합니다</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up display-4 text-primary mb-3"></i>
+                    <h3 class="h4">맞춤 일자리</h3>
+                    <p class="text-muted">경력과 경험에 맞는 최적의 일자리를 제안합니다</p>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Add Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<!-- Custom CSS -->
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-3px);
+        transition: transform 0.2s ease-in-out;
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .card {
+        transition: all 0.2s ease-in-out;
+    }
+</style>
 {% endblock %}

@@ -1,0 +1,188 @@
+{% extends 'jobs/base.html' %}
+{% block title %}알림{% endblock %}
+{% block content %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">알림</h1>
+                <button class="btn btn-outline-primary btn-sm" onclick="markAllAsRead()">
+                    <i class="bi bi-check2-all"></i> 모두 읽음 표시
+                </button>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-2">
+                    <ul class="nav nav-pills nav-fill">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#all">전체</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#application">지원 결과</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#interview">면접 제안</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#new_job">새 채용공고</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Notifications List -->
+            {% if notifications %}
+            <div class="card border-0 shadow-lg">
+                <div class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                    <div class="list-group-item {% if not notification.is_read %}list-group-item-light{% endif %}">
+                        <div class="d-flex align-items-center">
+                            <!-- Notification Icon -->
+                            <div class="notification-icon me-3">
+                                {% if notification.notification_type == 'application' %}
+                                    <i class="bi bi-file-earmark-check text-success"></i>
+                                {% elif notification.notification_type == 'interview' %}
+                                    <i class="bi bi-calendar-event text-primary"></i>
+                                {% elif notification.notification_type == 'new_job' %}
+                                    <i class="bi bi-briefcase text-info"></i>
+                                {% elif notification.notification_type == 'deadline' %}
+                                    <i class="bi bi-clock text-warning"></i>
+                                {% else %}
+                                    <i class="bi bi-bell text-secondary"></i>
+                                {% endif %}
+                            </div>
+
+                            <!-- Notification Content -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h6 class="mb-0">{{ notification.title }}</h6>
+                                    <small class="text-muted">{{ notification.created_at|timesince }} 전</small>
+                                </div>
+                                <p class="mb-0 text-muted">{{ notification.message }}</p>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="ms-3 d-flex gap-2">
+                                {% if notification.link %}
+                                <a href="{{ notification.link }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                                {% endif %}
+                                <button class="btn btn-outline-secondary btn-sm" onclick="markAsRead({{ notification.id }})">
+                                    <i class="bi bi-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">이전</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">다음</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <!-- Empty State -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-bell-slash display-4 text-muted mb-3"></i>
+                    <h3 class="h5">새로운 알림이 없습니다</h3>
+                    <p class="text-muted mb-0">채용공고에 지원하거나 새로운 채용공고가 등록되면<br>이곳에서 알림을 확인하실 수 있습니다.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<!-- Custom CSS -->
+<style>
+.card {
+    border-radius: 15px;
+}
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 1rem;
+}
+.list-group-item:first-child {
+    border-top: none;
+}
+.list-group-item:last-child {
+    border-bottom: none;
+}
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+}
+.notification-icon i {
+    font-size: 1.25rem;
+}
+.nav-pills .nav-link {
+    border-radius: 10px;
+    margin: 0.25rem;
+    color: #6c757d;
+}
+.nav-pills .nav-link.active {
+    background-color: #0d6efd;
+}
+</style>
+
+<!-- Custom JavaScript -->
+<script>
+function markAsRead(notificationId) {
+    // AJAX call to mark notification as read
+    fetch(`/api/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    }).then(() => {
+        window.location.reload();
+    });
+}
+
+function markAllAsRead() {
+    // AJAX call to mark all notifications as read
+    fetch('/api/notifications/read-all/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    }).then(() => {
+        window.location.reload();
+    });
+}
+</script>
+{% endblock %}

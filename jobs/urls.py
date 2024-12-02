@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from .views import NotificationListView
 
 app_name = 'jobs'
 
@@ -28,4 +29,9 @@ urlpatterns = [
     path('resume/list/', views.ResumeListView.as_view(), name='resume_list'),
     path('resume/<int:pk>/', views.ResumeDetailView.as_view(), name='resume_detail'),
     path('resume/<int:pk>/update/', views.ResumeUpdateView.as_view(), name='resume_update'),
+    path('notifications/', NotificationListView.as_view(), name='notification_list'),
+    path('search/', views.JobSearchView.as_view(), name='job_search'),
+    path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
+    path('resume/<int:pk>/preview/', views.ResumePreviewView.as_view(), name='resume_preview'),
+    path('analytics/', views.JobAnalyticsView.as_view(), name='job_analytics'),
 ]

@@ -1,42 +1,208 @@
 {% extends 'jobs/base.html' %}
 {% block title %}회원가입{% endblock %}
-
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-md">
-   <div class="bg-white rounded-xl shadow-lg p-8">
-       <h2 class="text-2xl font-bold mb-8 text-center text-gray-800">회원가입</h2>
-       <form method="post" class="space-y-6">
-           {% csrf_token %}
-           <div class="space-y-4">
-               <!-- Username -->
-               <div>
-                   <label class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
-                   {{ form.username }}
-               </div>
-               <!-- Email -->
-               <div>
-                   <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-                   {{ form.email }}
-               </div>
-               <!-- Password -->
-               <div>
-                   <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
-                   {{ form.password1 }}
-               </div>
-               <!-- Password Confirm -->
-               <div>
-                   <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
-                   {{ form.password2 }}
-               </div>
-           </div>
-           <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors mt-8">
-               가입하기
-           </button>
-       </form>
-       <p class="mt-6 text-center text-gray-600">
-           이미 계정이 있으신가요?
-           <a href="{% url 'jobs:login' %}" class="text-blue-600 hover:underline">로그인</a>
-       </p>
-   </div>
+
+<div class="container">
+    <div class="row justify-content-center my-5">
+        <div class="col-md-6 col-lg-5">
+            <!-- Signup Form Card -->
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <h1 class="card-title text-center mb-4 h2">회원가입</h1>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Username Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">아이디</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                {{ form.username|add_class:"form-control"|attr:"placeholder:아이디를 입력하세요" }}
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.username.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">영문, 숫자 조합 4-20자</div>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">이메일</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+                                {{ form.email|add_class:"form-control"|attr:"placeholder:이메일을 입력하세요" }}
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">이메일 인증이 필요합니다</div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">비밀번호</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                {{ form.password1|add_class:"form-control"|attr:"placeholder:비밀번호를 입력하세요" }}
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword1">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password1.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password1.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">영문, 숫자, 특수문자 조합 8자 이상</div>
+                        </div>
+
+                        <!-- Password Confirmation Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">비밀번호 확인</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock-fill"></i>
+                                </span>
+                                {{ form.password2|add_class:"form-control"|attr:"placeholder:비밀번호를 다시 입력하세요" }}
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword2">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password2.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password2.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Terms Agreement -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    <a href="#" class="text-primary text-decoration-none" data-bs-toggle="modal" data-bs-target="#termsModal">
+                                        이용약관</a>과
+                                    <a href="#" class="text-primary text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">
+                                        개인정보 처리방침</a>에 동의합니다
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Signup Button -->
+                        <button type="submit" class="btn btn-primary w-100 mb-4">
+                            가입하기
+                        </button>
+
+                        <!-- Login Link -->
+                        <div class="text-center">
+                            <span class="text-muted">이미 계정이 있으신가요?</span>
+                            <a href="{% url 'jobs:login' %}" class="text-primary text-decoration-none ms-1">로그인</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Social Signup -->
+            <div class="card border-0 shadow-lg mt-4">
+                <div class="card-body p-4">
+                    <p class="text-center text-muted mb-4">간편 회원가입</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-dark" type="button">
+                            <i class="bi bi-google me-2"></i>Google로 가입하기
+                        </button>
+                        <button class="btn btn-outline-primary" type="button">
+                            <i class="bi bi-facebook me-2"></i>Facebook으로 가입하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Terms Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">이용약관</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>이용약관 내용이 들어갈 자리입니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">개인정보 처리방침</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>개인정보 처리방침 내용이 들어갈 자리입니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<!-- Custom JavaScript -->
+<script>
+// Password Toggle Functionality
+['togglePassword1', 'togglePassword2'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function() {
+        const passwordField = this.previousElementSibling;
+        const icon = this.querySelector('i');
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+});
+</script>
+
+<!-- Custom CSS -->
+<style>
+.card {
+    border-radius: 15px;
+}
+.btn {
+    border-radius: 8px;
+    padding: 12px;
+}
+.form-control {
+    padding: 12px;
+}
+.input-group-text {
+    background-color: transparent;
+}
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+</style>
 {% endblock %}

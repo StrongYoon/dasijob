@@ -1,6 +1,27 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
 
+User = get_user_model()
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('application', '지원 결과'),
+        ('new_job', '새로운 채용공고'),
+        ('interview', '면접 제안'),
+        ('deadline', '마감 임박'),
+        ('system', '시스템 공지')
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    link = models.CharField(max_length=200, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
 class JobCategory(models.Model):
     name = models.CharField(max_length=100)
