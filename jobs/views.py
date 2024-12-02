@@ -197,6 +197,15 @@ class SignupDoneView(TemplateView):
     """
     template_name = 'jobs/signup_done.html'
 
+class AllJobsListView(ListView):
+    model = Job
+    template_name = 'jobs/job_list.html'
+    context_object_name = 'jobs'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Job.objects.all().order_by('-created_at')
+
 
 # 회원가입 뷰 수정
 def signup(request):

@@ -8,7 +8,7 @@ app_name = 'jobs'
 urlpatterns = [
     path('', views.MainPageView.as_view(), name='main'),
     path('category/<int:pk>/', views.CategoryDetailView.as_view(), name='category-detail'),
-    path('jobs/<int:subcategory_id>/', views.JobListView.as_view(), name='job-list'),
+    path('jobs/<int:subcategory_id>/', views.JobListView.as_view(), name='job_list'),
     path('job/<int:pk>/', views.JobDetailView.as_view(), name='job-detail'),
     path('search/', views.JobSearchView.as_view(), name='job-search'),
     path('signup/', views.SignUpView.as_view(), name='signup'),
@@ -34,4 +34,5 @@ urlpatterns = [
     path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
     path('resume/<int:pk>/preview/', views.ResumePreviewView.as_view(), name='resume_preview'),
     path('analytics/', views.JobAnalyticsView.as_view(), name='job_analytics'),
+    path('jobs/all/', views.AllJobsListView.as_view(), name='job_list'),
 ]
