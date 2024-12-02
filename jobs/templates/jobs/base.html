@@ -102,11 +102,12 @@
                             <span>{{ user.username }}님</span>
                         </button>
                         <div class="dropdown-menu bg-white rounded-lg shadow-xl">
-                           <a href="{% url 'jobs:profile' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">내 프로필</a>
-                           <a href="{% url 'jobs:profile_update' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">프로필 수정</a>
-                           <a href="{% url 'jobs:job-create' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">채용공고 등록</a>
-                           <div class="border-t border-gray-100"></div>
-                           <a href="{% url 'jobs:logout' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">로그아웃</a>
+                            <a href="{% url 'jobs:profile' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">내 프로필</a>
+                            <a href="{% url 'jobs:profile_update' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">프로필 수정</a>
+                            <a href="{% url 'jobs:resume_list' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">이력서 관리</a>
+                            <a href="{% url 'jobs:job-create' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">채용공고 등록</a>
+                            <div class="border-t border-gray-100"></div>
+                            <a href="{% url 'jobs:logout' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">로그아웃</a>
                         </div>
                     </div>
                 {% else %}

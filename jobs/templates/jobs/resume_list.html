@@ -1,10 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'jobs/base.html' %}
+
+{% block title %}내 이력서 목록{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- 상단 헤더 -->
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-bold">내 이력서 관리</h2>
+        <a href="{% url 'jobs:resume_create' %}" 
+           class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            새 이력서 작성
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative mb-6">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if resumes %}
+        <div class="grid gap-6">
+            {% for resume in resumes %}
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">{{ resume.title }}</h3>
+                            <p class="text-gray-600">마지막 수정: {{ resume.updated_at|date:"Y년 m월 d일" }}</p>
+                        </div>
+                        <div class="space-x-2">
+                            <a href="{% url 'jobs:resume_update' resume.pk %}" 
+                               class="text-blue-600 hover:text-blue-800">수정</a>
+                            <a href="{% url 'jobs:resume_detail' resume.pk %}" 
+                               class="text-green-600 hover:text-green-800">상세보기</a>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-gray-600">
+                        <h4 class="font-medium mb-1">자기소개</h4>
+                        <p class="text-sm">{{ resume.introduction|truncatewords:30 }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <p class="text-gray-600 mb-4">아직 작성된 이력서가 없습니다.</p>
+            <a href="{% url 'jobs:resume_create' %}" 
+               class="text-blue-600 hover:text-blue-800">
+                첫 이력서 작성하기
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,10 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'jobs/base.html' %}
+
+{% block title %}{% if form.instance.pk %}이력서 수정{% else %}새 이력서 작성{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold mb-8">
+            {% if form.instance.pk %}이력서 수정{% else %}새 이력서 작성{% endif %}
+        </h2>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- 이력서 제목 -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">이력서 제목</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.title.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 학력 사항 -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">학력 사항</label>
+                <p class="text-xs text-gray-500 mb-2">학교명, 전공, 졸업여부 등을 작성해주세요.</p>
+                {{ form.education }}
+                {% if form.education.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.education.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 경력 사항 -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">경력 사항</label>
+                <p class="text-xs text-gray-500 mb-2">회사명, 근무기간, 담당업무 등을 작성해주세요.</p>
+                {{ form.experience }}
+                {% if form.experience.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.experience.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 보유 기술 및 자격증 -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">보유 기술 및 자격증</label>
+                <p class="text-xs text-gray-500 mb-2">자격증명, 취득일, 특기사항 등을 작성해주세요.</p>
+                {{ form.skills }}
+                {% if form.skills.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.skills.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 자기소개 -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">자기소개</label>
+                <p class="text-xs text-gray-500 mb-2">업무에 임하는 자세, 직무 관련 강점 등을 작성해주세요.</p>
+                {{ form.introduction }}
+                {% if form.introduction.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.introduction.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 버튼 그룹 -->
+            <div class="flex justify-end space-x-4 pt-6">
+                <a href="{% url 'jobs:resume_list' %}" 
+                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    취소
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    {% if form.instance.pk %}수정완료{% else %}작성완료{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

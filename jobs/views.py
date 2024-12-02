@@ -21,8 +21,8 @@ from django.utils.html import strip_tags
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.views.generic import UpdateView
 
-from .forms import SignUpForm, UserUpdateForm
-from .models import JobCategory, Job, EmailVerification
+from .forms import SignUpForm, UserUpdateForm, ResumeForm
+from .models import JobCategory, Job, EmailVerification, Resume
 
 
 # SignUpForm 정의
@@ -330,3 +330,43 @@ class JobPostCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['categories'] = JobCategory.objects.all()
         return context
+
+class ResumeCreateView(LoginRequiredMixin, CreateView):
+    model = Resume
+    form_class = ResumeForm
+    template_name = 'jobs/resume_form.html'
+    success_url = reverse_lazy('jobs:resume_list')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        messages.success(self.request, '이력서가 성공적으로 등록되었습니다.')
+        return super().form_valid(form)
+
+class ResumeListView(LoginRequiredMixin, ListView):
+    model = Resume
+    template_name = 'jobs/resume_list.html'
+    context_object_name = 'resumes'
+
+    def get_queryset(self):
+        return Resume.objects.filter(user=self.request.user)
+
+class ResumeDetailView(LoginRequiredMixin, DetailView):
+    model = Resume
+    template_name = 'jobs/resume_detail.html'
+    context_object_name = 'resume'
+
+    def get_queryset(self):
+        return Resume.objects.filter(user=self.request.user)
+
+class ResumeUpdateView(LoginRequiredMixin, UpdateView):
+    model = Resume
+    form_class = ResumeForm
+    template_name = 'jobs/resume_form.html'
+    success_url = reverse_lazy('jobs:resume_list')
+
+    def get_queryset(self):
+        return Resume.objects.filter(user=self.request.user)
+
+    def form_valid(self, form):
+        messages.success(self.request, '이력서가 성공적으로 수정되었습니다.')
+        return super().form_valid(form)

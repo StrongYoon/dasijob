@@ -1,10 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'jobs/base.html' %}
+
+{% block title %}이력서 상세{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+        <!-- 상단 헤더 -->
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold">{{ resume.title }}</h2>
+            <div class="space-x-3">
+                <a href="{% url 'jobs:resume_update' resume.pk %}" 
+                   class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                    수정
+                </a>
+                <a href="{% url 'jobs:resume_list' %}" 
+                   class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition-colors">
+                    목록으로
+                </a>
+            </div>
+        </div>
+
+        <!-- 기본 정보 -->
+        <div class="mb-8">
+            <div class="flex justify-between text-sm text-gray-500 mb-4">
+                <span>작성일: {{ resume.created_at|date:"Y년 m월 d일" }}</span>
+                <span>최종 수정일: {{ resume.updated_at|date:"Y년 m월 d일" }}</span>
+            </div>
+        </div>
+
+        <!-- 학력 사항 -->
+        <div class="mb-8">
+            <h3 class="text-lg font-bold mb-3 text-gray-800">학력 사항</h3>
+            <div class="bg-gray-50 p-4 rounded-lg whitespace-pre-line">
+                {{ resume.education }}
+            </div>
+        </div>
+
+        <!-- 경력 사항 -->
+        <div class="mb-8">
+            <h3 class="text-lg font-bold mb-3 text-gray-800">경력 사항</h3>
+            <div class="bg-gray-50 p-4 rounded-lg whitespace-pre-line">
+                {{ resume.experience }}
+            </div>
+        </div>
+
+        <!-- 보유 기술 및 자격증 -->
+        <div class="mb-8">
+            <h3 class="text-lg font-bold mb-3 text-gray-800">보유 기술 및 자격증</h3>
+            <div class="bg-gray-50 p-4 rounded-lg whitespace-pre-line">
+                {{ resume.skills }}
+            </div>
+        </div>
+
+        <!-- 자기소개 -->
+        <div class="mb-8">
+            <h3 class="text-lg font-bold mb-3 text-gray-800">자기소개</h3>
+            <div class="bg-gray-50 p-4 rounded-lg whitespace-pre-line">
+                {{ resume.introduction }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

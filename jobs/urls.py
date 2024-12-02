@@ -24,4 +24,8 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),  # 프로필 보기
     path('profile/update/', views.ProfileUpdateView.as_view(), name='profile_update'),  # 프로필 수정
     path('job/create/', views.JobPostCreateView.as_view(), name='job-create'),
+    path('resume/create/', views.ResumeCreateView.as_view(), name='resume_create'),
+    path('resume/list/', views.ResumeListView.as_view(), name='resume_list'),
+    path('resume/<int:pk>/', views.ResumeDetailView.as_view(), name='resume_detail'),
+    path('resume/<int:pk>/update/', views.ResumeUpdateView.as_view(), name='resume_update'),
 ]
