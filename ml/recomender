@@ -1,0 +1,18 @@
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+class JobRecommender:
+    def __init__(self):
+        self.vectorizer = TfidfVectorizer()
+
+    def fit(self, jobs):
+        # 직무 설명을 벡터화
+        descriptions = [job.description for job in jobs]
+        self.vectors = self.vectorizer.fit_transform(descriptions)
+        self.jobs = jobs
+
+    def recommend(self, job_id, n=5):
+        job_idx = next(i for i, job in enumerate(self.jobs) if job.id == job_id)
+        similarities = cosine_similarity(self.vectors[job_idx], self.vectors)
+        similar_indices = similarities.argsort()[0][-n-1:-1][::-1]
+        return [self.jobs[i] for i in similar_indices]

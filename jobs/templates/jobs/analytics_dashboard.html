@@ -1,0 +1,12 @@
+{% extends 'jobs/base.html' %}
+{% load static %}
+
+{% block title %}채용 분석 대시보드{% endblock %}
+
+{% block content %}
+<div id="analytics-dashboard-root"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/analytics.js' %}"></script>
+{% endblock %}

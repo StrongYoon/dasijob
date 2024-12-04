@@ -1,0 +1,12 @@
+{% extends 'jobs/base.html' %}
+{% load static %}
+
+{% block title %}이력서 빌더{% endblock %}
+
+{% block content %}
+<div id="resume-builder-root" class="min-h-screen bg-gray-50"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/resumeBuilder.js' %}"></script>
+{% endblock %}

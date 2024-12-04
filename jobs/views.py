@@ -21,9 +21,18 @@ from django.utils.crypto import get_random_string
 from django.utils.html import strip_tags
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.views.generic import UpdateView
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ViewSet
 
+from .api.serializers import ResumeSerializer
 from .forms import SignUpForm, UserUpdateForm, ResumeForm, CustomAuthenticationForm, JobPostForm
-from .models import JobCategory, Job, EmailVerification, Resume, Notification, SubCategory, JobApplication
+from .models import (JobCategory, Job, EmailVerification, Resume, Notification,
+                     SubCategory, JobApplication, JobTrend, BookmarkedJob,
+                     Community, Mentoring, CompanyReview)
+from .utils import send_application_update
 
 
 class NotificationListView(LoginRequiredMixin, ListView):
@@ -559,3 +568,188 @@ class CustomLoginView(LoginView):
         self.request.session['login_attempts'] = attempts + 1
 
         return super().form_invalid(form)
+
+class ModernDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'jobs/modern_dashboard.html'
+
+class AnalyticsDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'jobs/analytics_dashboard.html'
+
+class ResumeBuilderView(LoginRequiredMixin, TemplateView):
+    template_name = 'jobs/resume_builder.html'
+
+class ResumeViewSet(viewsets.ModelViewSet):
+    queryset = Resume.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['post'])
+    def save_builder_content(self, request):
+        resume = Resume.objects.get(id=request.data.get('id'))
+        resume.content_json = request.data.get('content')
+        resume.save()
+        return Response({'status': 'success'})
+
+class AnalyticsViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False)
+    def dashboard_stats(self, request):
+        # 대시보드에 필요한 통계 데이터 반환
+        return Response({
+            'job_trends': [],
+            'category_stats': [],
+            'location_stats': [],
+            'salary_stats': {}
+        })
+
+class JobApplicationView(LoginRequiredMixin, CreateView):
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        # 지원 완료 후 실시간 업데이트 발송
+        send_application_update(self.request.user.id, {
+            'application_id': self.object.id,
+            'status': 'applied',
+            'job_title': self.object.job.title
+        })
+        return response
+
+class ResumeViewSet(viewsets.ModelViewSet):
+    serializer_class = ResumeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Resume.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def save_draft(self, request, pk=None):
+        resume = self.get_object()
+        resume.content_json = request.data.get('content')
+        resume.is_draft = True
+        resume.save()
+        return Response({'status': 'draft saved'})
+
+    @action(detail=True, methods=['post'])
+    def publish(self, request, pk=None):
+        resume = self.get_object()
+        resume.is_draft = False
+        resume.save()
+        return Response({'status': 'published'})
+
+
+class AnalyticsViewSet(ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def dashboard_stats(self, request):
+        """대시보드용 통계 데이터"""
+        today = timezone.now().date()
+        analytics = JobAnalytics.objects.filter(date=today).first()
+
+        if not analytics:
+            analytics = JobAnalytics.generate_daily_stats()
+
+        return Response({
+            'total_jobs': analytics.total_jobs,
+            'total_applications': analytics.total_applications,
+            'category_stats': analytics.category_stats,
+            'location_stats': analytics.location_stats,
+            'salary_stats': analytics.salary_stats
+        })
+
+    @action(detail=False, methods=['get'])
+    def trends(self, request):
+        """트렌드 데이터"""
+        days = int(request.query_params.get('days', 30))
+        start_date = timezone.now().date() - timedelta(days=days)
+
+        trends = JobTrend.objects.filter(
+            date__gte=start_date
+        ).order_by('date').values()
+
+        return Response(list(trends))
+
+    @action(detail=False, methods=['get'])
+    def category_analysis(self, request):
+        """카테고리별 상세 분석"""
+        analytics = JobAnalytics.objects.latest('date')
+        category_data = analytics.category_stats
+
+        for category, count in category_data.items():
+            category_data[category] = {
+                'count': count,
+                'avg_salary': analytics.salary_stats['by_category'].get(category, 0),
+                'applications': JobApplication.objects.filter(
+                    job__subcategory__category__name=category
+                ).count()
+            }
+
+        return Response(category_data)
+
+
+class JobAlertListView(LoginRequiredMixin, ListView):
+    model = Notification  # 또는 적절한 모델
+    template_name = 'jobs/job_alerts.html'
+    context_object_name = 'alerts'
+
+    def get_queryset(self):
+        return Notification.objects.filter(
+            user=self.request.user,
+            notification_type='new_job'
+        )
+
+class BookmarkedJobsView(LoginRequiredMixin, ListView):
+    model = BookmarkedJob
+    template_name = 'jobs/bookmarked_jobs.html'
+    context_object_name = 'bookmarks'
+
+    def get_queryset(self):
+        return BookmarkedJob.objects.filter(user=self.request.user)
+
+class CommunityListView(LoginRequiredMixin, ListView):
+    model = Community
+    template_name = 'jobs/community_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Community.objects.all().order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class MentoringView(LoginRequiredMixin, ListView):
+    model = Mentoring
+    template_name = 'jobs/mentoring.html'
+    context_object_name = 'mentoring_sessions'
+
+    def get_queryset(self):
+        user = self.request.user
+        return Mentoring.objects.filter(
+            Q(mentor=user) | Q(mentee=user)
+        ).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class CompanyReviewListView(LoginRequiredMixin, ListView):
+    model = CompanyReview
+    template_name = 'jobs/company_reviews.html'
+    context_object_name = 'reviews'
+    paginate_by = 10
+
+    def get_queryset(self):
+        company_id = self.kwargs.get('pk')
+        return CompanyReview.objects.filter(company_id=company_id).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['company'] = Company.objects.get(pk=self.kwargs['pk'])
+        return context
+

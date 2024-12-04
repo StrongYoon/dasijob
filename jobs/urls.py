@@ -1,9 +1,16 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from . import views
+from .api.views import ResumeViewSet, JobViewSet, JobApplicationViewSet
 from .views import NotificationListView
 
 app_name = 'jobs'
+
+router = DefaultRouter()
+router.register(r'api/resumes', ResumeViewSet, basename='resume-api')
+router.register(r'api/jobs', JobViewSet, basename='job-api')
+router.register(r'api/applications', JobApplicationViewSet, basename='application-api')
 
 urlpatterns = [
     path('', views.MainPageView.as_view(), name='main'),
@@ -35,4 +42,14 @@ urlpatterns = [
     path('analytics/', views.JobAnalyticsView.as_view(), name='job_analytics'),
     path('jobs/', views.JobListView.as_view(), name='job_list'),
     path('social-auth/', include('social_django.urls', namespace='social')),
+    # path('alerts/', views.JobAlertListView.as_view(), name='job_alerts'),
+    # path('alerts/create/', views.JobAlertCreateView.as_view(), name='create_job_alert'),
+    path('bookmarks/', views.BookmarkedJobsView.as_view(), name='bookmarked_jobs'),
+    path('community/', views.CommunityListView.as_view(), name='community'),
+    path('mentoring/', views.MentoringView.as_view(), name='mentoring'),
+    path('dashboard/modern/', views.ModernDashboardView.as_view(), name='modern_dashboard'),
+    path('dashboard/analytics/', views.AnalyticsDashboardView.as_view(), name='analytics_dashboard'),
+    path('resume/builder/', views.ResumeBuilderView.as_view(), name='resume_builder'),
+    path('companies/<int:pk>/reviews/', views.CompanyReviewListView.as_view(), name='company_reviews'),
+    path('', include(router.urls)),
 ]

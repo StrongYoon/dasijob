@@ -48,8 +48,31 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'widget_tweaks',
     'social_django',
+    'rest_framework',
+    'channels',
+    'django_celery_beat',
     'jobs'
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
+ASGI_APPLICATION = 'dasijob.asgi.application'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -60,6 +83,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    'jobs.middleware.ErrorHandlingMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -68,6 +92,23 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.naver.NaverOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+PROTECTED_URLS = [
+    'resume_list',
+    'resume_create',
+    'job_create',
+    'application_list',
+]
+
+SUBSCRIPTION_REQUIRED_URLS = [
+    'analytics_dashboard',
+    'resume_builder',
+]
+
+COMPANY_ONLY_URLS = [
+    'job_create',
+    'company_dashboard',
+]
 
 # 소셜 로그인 설정
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '6Lehv5EqAAAAAOlp_1_mU4yGxtXHkAxOpuPEBwkh'
@@ -170,3 +211,13 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'itnerdapc@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
+# Celery 설정
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+# Celery Beat 설정
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
