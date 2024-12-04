@@ -64,19 +64,29 @@ class MainPageView(ListView):
 
 class JobSearchView(ListView):
     model = Job
-    template_name = 'jobs/job_search.html'
+    template_name = 'jobs/search_results.html'
     context_object_name = 'jobs'
-    paginate_by = 12
+    paginate_by = 9
 
     def get_queryset(self):
         queryset = Job.objects.all()
-        keyword = self.request.GET.get('keyword')
-        if keyword:
+        q = self.request.GET.get('q')
+        location = self.request.GET.get('location')
+        job_type = self.request.GET.get('job_type')
+
+        if q:
             queryset = queryset.filter(
-                Q(title__icontains=keyword) |
-                Q(company__icontains=keyword) |
-                Q(description__icontains=keyword)
+                Q(title__icontains=q) |
+                Q(company__icontains=q) |
+                Q(description__icontains=q)
             )
+
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+
+        if job_type:
+            queryset = queryset.filter(work_type=job_type)
+
         return queryset.order_by('-created_at')
 
 class CategoryDetailView(DetailView):
@@ -438,34 +448,6 @@ class ResumeUpdateView(LoginRequiredMixin, UpdateView):
 
 
 from django.views.generic import ListView
-
-
-class JobSearchView(ListView):
-    model = Job
-    template_name = 'jobs/search_results.html'
-    context_object_name = 'jobs'
-    paginate_by = 9  # 한 페이지에 9개씩 표시
-
-    def get_queryset(self):
-        queryset = Job.objects.all()
-        q = self.request.GET.get('q')
-        location = self.request.GET.get('location')
-        job_type = self.request.GET.get('job_type')
-
-        if q:
-            queryset = queryset.filter(
-                Q(title__icontains=q) |
-                Q(company__icontains=q) |
-                Q(description__icontains=q)
-            )
-
-        if location:
-            queryset = queryset.filter(location__icontains=location)
-
-        if job_type:
-            queryset = queryset.filter(work_type=job_type)
-
-        return queryset.order_by('-created_at')
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):

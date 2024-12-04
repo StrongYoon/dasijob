@@ -5,46 +5,41 @@
 
 {% block content %}
 <!-- Hero Section with Search -->
-<section class="bg-primary text-white py-5 mb-5">
+<section class="py-5 bg-light">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8 mx-auto text-center">
-                <h1 class="display-4 mb-4">경험이 가치가 되는 곳</h1>
-                <p class="lead mb-4">당신의 경험과 지혜를 필요로 하는 기업을 만나보세요</p>
-                <!-- Search Form -->
-                <form class="d-flex justify-content-center" action="{% url 'jobs:job_search' %}" method="get">
-                    <div class="input-group input-group-lg" style="max-width: 600px;">
-                        <input type="text" class="form-control" name="q" placeholder="직무, 기업명, 지역 검색">
-                        <button class="btn btn-light" type="submit">
-                            <i class="bi bi-search"></i> 검색
-                        </button>
+        <h2 class="text-center mb-4">직종별 채용정보</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            {% for category in categories %}
+            <div class="col">
+                <div class="card h-100 shadow-sm hover-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-{{ category.icon }} fs-4 me-2"></i>
+                            <h5 class="card-title mb-0">
+                                <a href="{% url 'jobs:category_detail' category.id %}"
+                                   class="text-decoration-none text-dark">
+                                    {{ category.name }}
+                                </a>
+                            </h5>
+                        </div>
+                        <p class="card-text small text-muted">{{ category.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary rounded-pill">
+                                총 {{ category.subcategories.count }}개 분야
+                            </span>
+                            <a href="{% url 'jobs:category_detail' category.id %}"
+                               class="btn btn-outline-primary btn-sm">
+                                상세보기
+                            </a>
+                        </div>
                     </div>
-                </form>
+                </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 </section>
 
-<!-- Job Categories Section -->
-<section class="container mb-5">
-    <h2 class="display-6 mb-4">직종별 채용정보</h2>
-    <div class="row g-4">
-        {% for category in categories %}
-        <div class="col-6 col-md-4 col-lg-3">
-            <a href="{% url 'jobs:category_detail' category.id %}" class="text-decoration-none">
-                <div class="card h-100 shadow-sm hover-shadow">
-                    <div class="card-body">
-                        <h3 class="h5 card-title text-primary">{{ category.name }}</h3>
-                        <p class="card-text text-muted">
-                            채용 {{ category.jobs.count }}건
-                        </p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        {% endfor %}
-    </div>
-</section>
 
 <!-- Recent Jobs Section -->
 <section class="container mb-5">

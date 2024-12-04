@@ -1,45 +1,59 @@
 {% extends 'jobs/base.html' %}
-
-{% block title %}{{ category.name }} 채용정보{% endblock %}
-
 {% block content %}
-<div class="container mx-auto px-4">
-    <!-- 카테고리 헤더 -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-2">{{ category.name }}</h1>
-        <p class="text-gray-600">{{ category.description }}</p>
-    </div>
-
-    <!-- 하위 카테고리 목록 -->
-    <div class="mb-12">
-        <h2 class="text-2xl font-bold mb-6">세부 직종</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {% for subcategory in category.subcategories.all %}
-            <a href="{% url 'jobs:job_list_by_category' subcategory_id=subcategory.id %}"
-               class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                <h3 class="text-lg font-bold mb-2">{{ subcategory.name }}</h3>
-                <p class="text-gray-600">
-                    채용 {{ subcategory.jobs.count }}건
-                </p>
-            </a>
-            {% endfor %}
+<div class="container mt-5">
+    <!-- 메인 카테고리 헤더 -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-{{ category.icon }} fs-2 me-3"></i>
+                <div>
+                    <h2 class="card-title mb-1">{{ category.name }}</h2>
+                    <p class="text-muted mb-0">{{ category.description }}</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 최근 채용정보 -->
-    <div class="mb-12">
-        <h2 class="text-2xl font-bold mb-6">세부 직종</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {% for subcategory in category.subcategories.all %}
-            <a href="{% url 'jobs:job_list_by_category' subcategory_id=subcategory.id %}"
-               class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                <h3 class="text-lg font-bold mb-2">{{ subcategory.name }}</h3>
-                <p class="text-gray-600">
-                    채용 {{ subcategory.jobs.count }}건
-                </p>
-            </a>
-            {% endfor %}
+    <!-- 서브카테고리 그리드 -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for subcategory in subcategories %}
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'jobs:job_list_by_category' subcategory.id %}"
+                           class="text-decoration-none text-dark">
+                            {{ subcategory.name }}
+                        </a>
+                    </h5>
+                    <p class="card-text text-muted small">{{ subcategory.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary rounded-pill">
+                            채용 {{ subcategory.jobs.count }}건
+                        </span>
+                        <a href="{% url 'jobs:job_list_by_category' subcategory.id %}"
+                           class="btn btn-outline-primary btn-sm">
+                            채용정보 보기
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
+        {% endfor %}
     </div>
 </div>
+
+<!-- 호버 효과를 위한 CSS -->
+<style>
+    .hover-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .badge {
+        font-weight: 500;
+    }
+</style>
 {% endblock %}

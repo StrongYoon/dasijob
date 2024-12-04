@@ -1,73 +1,155 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>다시잡 - {% block title %}{% endblock %}</title>
-
-    <!-- Bootstrap CSS -->
+    <title>다시잡</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <!-- 로고 스타일 추가 -->
+    <style>
+        .navbar {
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .brand-container {
+            padding: 0;
+            margin-right: 2rem;
+        }
+
+        .brand-logo {
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .brand-text, .brand-highlight {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .brand-text {
+            color: #1a1a1a;
+        }
+
+        .brand-highlight {
+            color: #2563eb;
+            position: relative;
+            margin-left: 0.1em;
+        }
+
+        .brand-tagline {
+            position: absolute;
+            bottom: -0.3rem;
+            right: 0;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #6b7280;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .brand-text, .brand-highlight {
+                font-size: 1.5rem;
+            }
+            .brand-tagline {
+                display: none;
+            }
+        }
+
+        /* 호버 효과 */
+        .navbar-brand:hover .brand-logo {
+            transform: translateY(-1px);
+            transition: transform 0.2s ease;
+        }
+
+        .navbar-brand:hover .brand-text {
+            color: #2563eb;
+            transition: color 0.2s ease;
+        }
+    </style>
 </head>
 <body>
-    <!-- 네비게이션 바 -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'jobs:main' %}">다시잡</a>
+            <a class="navbar-brand brand-container" href="{% url 'jobs:main' %}">
+                <!-- 로고 디자인 -->
+                <div class="brand-logo">
+                    <span class="brand-text">다시</span><span class="brand-highlight">잡</span>
+                    <div class="brand-tagline">Senior Job Platform</div>
+                </div>
+                <!-- 선택적: 작은 태그라인 추가 -->
+                <small class="logo-tagline d-none d-md-inline">시니어 구인구직 플랫폼</small>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div id="navbarNav" class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'jobs:job_search' %}">채용정보</a>
                     </li>
                 </ul>
+
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'jobs:profile' %}">프로필</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'jobs:logout' %}">로그아웃</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'jobs:profile' %}">프로필</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'jobs:logout' %}">로그아웃</a>
+                        </li>
                     {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'jobs:login' %}">로그인</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'jobs:signup' %}">회원가입</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'jobs:login' %}">로그인</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'jobs:signup' %}">회원가입</a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- 메인 컨텐츠 -->
-    <main class="container mt-4">
-        <!-- 메시지/알림 표시 영역 -->
+    <main class="container mt-4" role="main">
         {% if messages %}
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             {% endfor %}
         {% endif %}
 
-        <!-- 메인 컨텐츠 블록 -->
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Toast 알림을 위한 마운트 포인트 -->
     <div id="toast-root"></div>
 
-    <!-- 기본 JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 푸터 -->
+    <footer class="footer bg-light mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-3">다시잡</h5>
+                    <p class="text-muted mb-0">시니어를 위한 구인구직 플랫폼</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted">&copy; 2024 다시잡. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-    <!-- 추가 JavaScript -->
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+
