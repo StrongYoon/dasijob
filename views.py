@@ -1,7 +1,9 @@
 # views.py
 from django.shortcuts import get_object_or_404
+from django.urls import path
 from django.views.generic import ListView, DetailView
 
+from . import views
 from .models import JobCategory, SubCategory, Job
 
 
@@ -52,10 +54,6 @@ class JobDetailView(DetailView):
     model = Job
     template_name = "jobs/job_detail.html"
 
-
-# urls.py
-from django.urls import path
-from . import views
 
 app_name = "jobs"
 

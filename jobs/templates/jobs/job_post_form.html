@@ -1,263 +1,170 @@
 {% extends 'jobs/base.html' %}
-
-{% block title %}채용공고 등록{% endblock %}
-
-{% block content %}
-<div class="container mx-auto px-4 py-8 max-w-3xl">
-    <div class="bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold mb-8 text-center">채용공고 등록</h2>
-
-        <form method="post" class="space-y-6">
-            {% csrf_token %}
-
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative mb-6">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            <!-- 제목 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">채용 공고 제목</label>
-                {{ form.title }}
-                {% if form.title.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.title.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- 회사명 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">회사명</label>
-                {{ form.company }}
-                {% if form.company.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.company.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- 직종 카테고리 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">직종 카테고리</label>
-                {{ form.subcategory }}
-                {% if form.subcategory.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.subcategory.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- 직무 설명 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">직무 설명</label>
-                {{ form.description }}
-                {% if form.description.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.description.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- 자격 요건 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">자격 요건</label>
-                {{ form.requirements }}
-                {% if form.requirements.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.requirements.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- 근무지 위치 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">근무지 위치</label>
-                {{ form.location }}
-                {% if form.location.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.location.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- 급여 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">급여</label>
-                {{ form.salary }}
-                {% if form.salary.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.salary.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- 근무 형태 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">근무 형태</label>
-                {{ form.work_type }}
-                {% if form.work_type.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.work_type.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- 마감일 -->
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">마감일</label>
-                {{ form.deadline }}
-                {% if form.deadline.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.deadline.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- 버튼 -->
-            <div class="flex justify-end space-x-4 pt-6">
-                <a href="{% url 'jobs:main' %}" 
-                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                    취소
-                </a>
-                <button type="submit" 
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    등록하기
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-{% endblock %}{% extends 'jobs/base.html' %}
+{% load widget_tweaks %}
 {% block title %}채용공고 등록{% endblock %}
 {% block content %}
+
+{#<div class="container mx-auto px-4 py-8 max-w-3xl">#}
+{#    <div class="bg-white rounded-xl shadow-lg p-8">#}
+{#        <h2 class="text-2xl font-bold mb-8 text-center">채용공고 등록</h2>#}
+{##}
+{#        <form method="post" class="space-y-6">#}
+{#            {% csrf_token %}#}
+{##}
+{#            {% if messages %}#}
+{#                {% for message in messages %}#}
+{#                    <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative mb-6">#}
+{#                        {{ message }}#}
+{#                    </div>#}
+{#                {% endfor %}#}
+{#            {% endif %}#}
+{##}
+{#            <!-- 제목 -->#}
+{#            <div class="space-y-2">#}
+{#                <label class="block text-sm font-medium text-gray-700">채용 공고 제목</label>#}
+{#                {{ form.title }}#}
+{#                {% if form.title.errors %}#}
+{#                    <p class="text-red-500 text-xs mt-1">{{ form.title.errors.0 }}</p>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <!-- 회사명 -->#}
+{#            <div class="space-y-2">#}
+{#                <label class="block text-sm font-medium text-gray-700">회사명</label>#}
+{#                {{ form.company }}#}
+{#                {% if form.company.errors %}#}
+{#                    <p class="text-red-500 text-xs mt-1">{{ form.company.errors.0 }}</p>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <!-- 직종 카테고리 -->#}
+{#            <div class="space-y-2">#}
+{#                <label class="block text-sm font-medium text-gray-700">직종 카테고리</label>#}
+{#                {{ form.subcategory }}#}
+{#                {% if form.subcategory.errors %}#}
+{#                    <p class="text-red-500 text-xs mt-1">{{ form.subcategory.errors.0 }}</p>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <!-- 직무 설명 -->#}
+{#            <div class="space-y-2">#}
+{#                <label class="block text-sm font-medium text-gray-700">직무 설명</label>#}
+{#                {{ form.description }}#}
+{#                {% if form.description.errors %}#}
+{#                    <p class="text-red-500 text-xs mt-1">{{ form.description.errors.0 }}</p>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <!-- 자격 요건 -->#}
+{#            <div class="space-y-2">#}
+{#                <label class="block text-sm font-medium text-gray-700">자격 요건</label>#}
+{#                {{ form.requirements }}#}
+{#                {% if form.requirements.errors %}#}
+{#                    <p class="text-red-500 text-xs mt-1">{{ form.requirements.errors.0 }}</p>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <!-- 근무지 위치 -->#}
+{#            <div class="space-y-2">#}
+{#                <label class="block text-sm font-medium text-gray-700">근무지 위치</label>#}
+{#                {{ form.location }}#}
+{#                {% if form.location.errors %}#}
+{#                    <p class="text-red-500 text-xs mt-1">{{ form.location.errors.0 }}</p>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <!-- 급여 -->#}
+{#            <div class="space-y-2">#}
+{#                <label class="block text-sm font-medium text-gray-700">급여</label>#}
+{#                {{ form.salary }}#}
+{#                {% if form.salary.errors %}#}
+{#                    <p class="text-red-500 text-xs mt-1">{{ form.salary.errors.0 }}</p>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <!-- 근무 형태 -->#}
+{#            <div class="space-y-2">#}
+{#                <label class="block text-sm font-medium text-gray-700">근무 형태</label>#}
+{#                {{ form.work_type }}#}
+{#                {% if form.work_type.errors %}#}
+{#                    <p class="text-red-500 text-xs mt-1">{{ form.work_type.errors.0 }}</p>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <!-- 마감일 -->#}
+{#            <div class="space-y-2">#}
+{#                <label class="block text-sm font-medium text-gray-700">마감일</label>#}
+{#                {{ form.deadline }}#}
+{#                {% if form.deadline.errors %}#}
+{#                    <p class="text-red-500 text-xs mt-1">{{ form.deadline.errors.0 }}</p>#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <!-- 버튼 -->#}
+{#            <div class="flex justify-end space-x-4 pt-6">#}
+{#                <a href="{% url 'jobs:main' %}" #}
+{#                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">#}
+{#                    취소#}
+{#                </a>#}
+{#                <button type="submit" #}
+{#                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">#}
+{#                    등록하기#}
+{#                </button>#}
+{#            </div>#}
+{#        </form>#}
+{#    </div>#}
+{#</div>#}
+{#{% endblock %}{% extends 'jobs/base.html' %}#}
+{#{% block title %}채용공고 등록{% endblock %}#}
+{#{% block content %}#}
+
 
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-9">
-            <!-- Progress Bar -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-3">
-                    <div class="progress" style="height: 10px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" id="formProgress"></div>
-                    </div>
-                    <div class="d-flex justify-content-between mt-2">
-                        <small class="text-muted">기업 정보</small>
-                        <small class="text-muted">채용 정보</small>
-                        <small class="text-muted">상세 내용</small>
-                        <small class="text-muted">완료</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Form -->
             <div class="card border-0 shadow-lg">
                 <div class="card-header bg-primary text-white py-3">
                     <h1 class="h4 mb-0">채용공고 등록</h1>
                 </div>
 
                 <div class="card-body p-4">
-                    <form method="post" class="needs-validation" novalidate>
+                    <form method="post">
                         {% csrf_token %}
 
                         {% if messages %}
                             {% for message in messages %}
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
+                                <div class="alert alert-success mb-4">
+                                    {{ message }}
+                                </div>
                             {% endfor %}
                         {% endif %}
 
-                        <!-- Company Information -->
-                        <section class="mb-5">
-                            <h2 class="h5 mb-4">
-                                <i class="bi bi-building me-2"></i>기업 정보
-                            </h2>
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label for="{{ form.company.id_for_label }}" class="form-label">회사명<span class="text-danger">*</span></label>
-                                    {{ form.company|add_class:"form-control"|attr:"placeholder:회사명을 입력해주세요" }}
-                                    {% if form.company.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.company.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
+                        <!-- 제목 -->
+                        <div class="mb-4">
+                            <label class="form-label">채용 공고 제목</label>
+                            {{ form.title|attr:"class:form-control" }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>
+                            {% endif %}
+                        </div>
 
-                                <div class="col-md-6">
-                                    <label for="{{ form.location.id_for_label }}" class="form-label">근무지 위치<span class="text-danger">*</span></label>
-                                    {{ form.location|add_class:"form-control"|attr:"placeholder:예: 서울시 강남구" }}
-                                    {% if form.location.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.location.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
+                        <!-- 회사명 -->
+                        <div class="mb-4">
+                            <label class="form-label">회사명</label>
+                            {{ form.company|attr:"class:form-control" }}
+                            {% if form.company.errors %}
+                                <div class="invalid-feedback d-block">{{ form.company.errors.0 }}</div>
+                            {% endif %}
+                        </div>
 
-                                <div class="col-md-6">
-                                    <label for="{{ form.work_type.id_for_label }}" class="form-label">근무 형태<span class="text-danger">*</span></label>
-                                    {{ form.work_type|add_class:"form-select" }}
-                                    {% if form.work_type.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.work_type.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </section>
+                        <!-- 나머지 필드들도 같은 형식으로 추가 -->
 
-                        <!-- Job Information -->
-                        <section class="mb-5">
-                            <h2 class="h5 mb-4">
-                                <i class="bi bi-briefcase me-2"></i>채용 정보
-                            </h2>
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label for="{{ form.title.id_for_label }}" class="form-label">채용 공고 제목<span class="text-danger">*</span></label>
-                                    {{ form.title|add_class:"form-control"|attr:"placeholder:채용 포지션을 포함한 제목을 입력해주세요" }}
-                                    {% if form.title.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>
-                                    {% endif %}
-                                    <div class="form-text">예: "경력 10년 이상 시니어 개발자 모집", "재무회계 팀장 채용"</div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="{{ form.subcategory.id_for_label }}" class="form-label">직종 카테고리<span class="text-danger">*</span></label>
-                                    {{ form.subcategory|add_class:"form-select" }}
-                                    {% if form.subcategory.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.subcategory.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="{{ form.salary.id_for_label }}" class="form-label">급여<span class="text-danger">*</span></label>
-                                    {{ form.salary|add_class:"form-control"|attr:"placeholder:예: 연봉 5,000만원 이상" }}
-                                    {% if form.salary.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.salary.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="{{ form.deadline.id_for_label }}" class="form-label">마감일<span class="text-danger">*</span></label>
-                                    {{ form.deadline|add_class:"form-control"|attr:"type:date" }}
-                                    {% if form.deadline.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.deadline.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Detailed Information -->
-                        <section class="mb-5">
-                            <h2 class="h5 mb-4">
-                                <i class="bi bi-file-text me-2"></i>상세 내용
-                            </h2>
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label for="{{ form.description.id_for_label }}" class="form-label">직무 설명<span class="text-danger">*</span></label>
-                                    {{ form.description|add_class:"form-control"|attr:"rows:5"|attr:"placeholder:담당하게 될 업무와 책임, 부서 정보 등을 상세히 작성해주세요" }}
-                                    {% if form.description.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.description.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-12">
-                                    <label for="{{ form.requirements.id_for_label }}" class="form-label">자격 요건<span class="text-danger">*</span></label>
-                                    {{ form.requirements|add_class:"form-control"|attr:"rows:5"|attr:"placeholder:필수/우대 사항, 경력 요건 등을 구체적으로 작성해주세요" }}
-                                    {% if form.requirements.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.requirements.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Form Actions -->
-                        <div class="d-flex justify-content-between align-items-center border-top pt-4">
+                        <!-- 버튼 -->
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                             <a href="{% url 'jobs:main' %}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left"></i> 취소
+                                취소
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check2"></i> 등록하기
+                                등록하기
                             </button>
                         </div>
                     </form>
@@ -266,6 +173,8 @@
         </div>
     </div>
 </div>
+
+{% endblock %}
 
 <!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

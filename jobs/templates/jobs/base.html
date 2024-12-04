@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,66 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>다시잡 - {% block title %}{% endblock %}</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <style>
-        .logo-image {
-            height: 40px;
-            width: auto;
-        }
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #0d6efd;
-        }
-        .dropdown-menu {
-            min-width: 200px;
-        }
-        .footer {
-            padding: 20px 0;
-            background-color: #f8f9fa;
-            margin-top: 50px;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- 네비게이션 바 -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <!-- Logo and Brand -->
-            <a class="navbar-brand d-flex align-items-center" href="{% url 'jobs:main' %}">
-                <img src="{% static 'images/logo.png' %}" alt="다시잡 로고" class="logo-image me-2">
-                <span>다시잡</span>
-            </a>
-
-            <!-- Responsive Toggle Button -->
+            <a class="navbar-brand" href="{% url 'jobs:main' %}">다시잡</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <!-- Navigation Items -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'jobs:job_search' %}">채용정보</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
                     {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                {{ user.username }}님
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{% url 'jobs:profile' %}">내 프로필</a></li>
-                                <li><a class="dropdown-item" href="{% url 'jobs:profile_update' %}">프로필 수정</a></li>
-                                <li><a class="dropdown-item" href="{% url 'jobs:resume_list' %}">이력서 관리</a></li>
-                                <li><a class="dropdown-item" href="{% url 'jobs:job_create' %}">채용공고 등록</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'jobs:logout' %}">로그아웃</a></li>
-                            </ul>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'jobs:profile' %}">프로필</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'jobs:logout' %}">로그아웃</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'jobs:login' %}">로그인</a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-primary ms-2" href="{% url 'jobs:signup' %}">회원가입</a>
+                            <a class="nav-link" href="{% url 'jobs:signup' %}">회원가입</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -73,19 +45,23 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container py-4">
-        {% block content %}{% endblock %}
-    </main>
+    <!-- 메인 컨텐츠 -->
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container text-center">
-            <p class="mb-0">© 2024 다시잡. All rights reserved.</p>
-        </div>
-    </footer>
+        {% block content %}
+        {% endblock %}
+    </div>
 
-    <!-- Bootstrap JS and Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

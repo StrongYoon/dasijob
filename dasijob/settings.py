@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'widget_tweaks',
+    'social_django',
     'jobs'
 ]
 
@@ -57,14 +59,38 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.kakao.KakaoOAuth2',
+    'social_core.backends.naver.NaverOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# 소셜 로그인 설정
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '6Lehv5EqAAAAAOlp_1_mU4yGxtXHkAxOpuPEBwkh'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '6Lehv5EqAAAAAKP2OARaBMcoiVpX5Wt9o2JZl4_9'
+
+SOCIAL_AUTH_KAKAO_KEY = 'a51a6c85763af38c3b5d2846a921d107'
+SOCIAL_AUTH_KAKAO_SECRET = 'your-kakao-secret'
+
+SOCIAL_AUTH_NAVER_KEY = 'cX34CmsM6Bkln8Sh72ug'
+SOCIAL_AUTH_NAVER_SECRET = 'DlzjYcDNMw'
+
 ROOT_URLCONF = "dasijob.urls"
+
+# reCAPTCHA 키 (Google reCAPTCHA에서 발급받은 키로 교체 필요)
+# RECAPTCHA_PUBLIC_KEY = '6Lehv5EqAAAAAOlp_1_mU4yGxtXHkAxOpuPEBwkh'
+# RECAPTCHA_PRIVATE_KEY = '6Lehv5EqAAAAAKP2OARaBMcoiVpX5Wt9o2JZl4_9'
+
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'jobs' / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -108,6 +134,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_REDIRECT_URL = '/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -141,5 +168,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'itnerdapc@gmail.com'
-EMAIL_HOST_PASSWORD = 'ydh456879'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 

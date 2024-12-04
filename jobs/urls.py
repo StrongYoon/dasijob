@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 from .views import NotificationListView
@@ -34,4 +34,5 @@ urlpatterns = [
     path('resume/<int:pk>/preview/', views.ResumePreviewView.as_view(), name='resume_preview'),
     path('analytics/', views.JobAnalyticsView.as_view(), name='job_analytics'),
     path('jobs/', views.JobListView.as_view(), name='job_list'),
+    path('social-auth/', include('social_django.urls', namespace='social')),
 ]

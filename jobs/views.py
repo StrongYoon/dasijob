@@ -1,7 +1,6 @@
 import json
 from datetime import timedelta
 
-from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -23,8 +22,8 @@ from django.utils.html import strip_tags
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.views.generic import UpdateView
 
-from .forms import SignUpForm, UserUpdateForm, ResumeForm
-from .models import JobCategory, Job, EmailVerification, Resume, Notification
+from .forms import SignUpForm, UserUpdateForm, ResumeForm, CustomAuthenticationForm, JobPostForm
+from .models import JobCategory, Job, EmailVerification, Resume, Notification, SubCategory, JobApplication
 
 
 class NotificationListView(LoginRequiredMixin, ListView):
@@ -205,10 +204,34 @@ class SignUpView(CreateView):
 
         return redirect('jobs:signup_done')
 
-class CustomLoginView(LoginView):
-    template_name = 'jobs/login.html'
-    next_page = 'jobs:main'
 
+class CustomLoginView(LoginView):
+    form_class = CustomAuthenticationForm
+    template_name = 'jobs/login.html'
+
+    def form_valid(self, form):
+        # 로그인 시도 횟수 체크
+        username = form.cleaned_data.get('username')
+        attempts = self.request.session.get('login_attempts', 0)
+
+        if attempts >= 5:  # 5회 이상 실패시
+            minutes_locked = 30
+            messages.error(
+                self.request,
+                f'너무 많은 로그인 시도가 있었습니다. {minutes_locked}분 후에 다시 시도해주세요.'
+            )
+            return self.form_invalid(form)
+
+        # 성공시 시도 횟수 초기화
+        self.request.session['login_attempts'] = 0
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # 실패시 시도 횟수 증가
+        attempts = self.request.session.get('login_attempts', 0)
+        self.request.session['login_attempts'] = attempts + 1
+
+        return super().form_invalid(form)
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     form_class = UserUpdateForm
@@ -218,9 +241,16 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['username'].widget.attrs.update({'class': 'form-control'})
+        form.fields['email'].widget.attrs.update({'class': 'form-control'})
+        form.fields['first_name'].widget.attrs.update({'class': 'form-control'})
+        form.fields['last_name'].widget.attrs.update({'class': 'form-control'})
+        return form
+
     def form_valid(self, form):
         response = super().form_valid(form)
-        # 성공 메시지 추가
         messages.success(self.request, '프로필이 성공적으로 업데이트되었습니다.')
         return response
 
@@ -341,50 +371,6 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context['user'] = self.request.user
         return context
 
-class JobPostForm(forms.ModelForm):
-    class Meta:
-        model = Job
-        fields = ['title', 'company', 'subcategory', 'description', 'requirements',
-                 'location', 'salary', 'work_type', 'deadline']
-        widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'placeholder': '채용 공고 제목'
-            }),
-            'company': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'placeholder': '회사명'
-            }),
-            'subcategory': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-            }),
-            'description': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'rows': '5',
-                'placeholder': '직무 설명'
-            }),
-            'requirements': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'rows': '5',
-                'placeholder': '자격 요건'
-            }),
-            'location': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'placeholder': '근무지 위치'
-            }),
-            'salary': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'placeholder': '급여'
-            }),
-            'work_type': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-            }),
-            'deadline': forms.DateInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'type': 'date'
-            })
-        }
-
 class JobPostCreateView(LoginRequiredMixin, CreateView):
     model = Job
     form_class = JobPostForm
@@ -481,11 +467,11 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         user = self.request.user
 
         context.update({
-            'total_applications': Application.objects.filter(user=user).count(),
-            'in_progress': Application.objects.filter(user=user, status='pending').count(),
-            'upcoming_interviews': Application.objects.filter(user=user, status='interview').count(),
+            'total_applications': JobApplication.objects.filter(user=user).count(),
+            'in_progress': JobApplication.objects.filter(user=user, status='pending').count(),
+            'upcoming_interviews': JobApplication.objects.filter(user=user, status='interview').count(),
             'saved_jobs': Job.objects.filter(bookmarks=user).count(),
-            'recent_applications': Application.objects.filter(user=user).order_by('-applied_at')[:5],
+            'recent_applications': JobApplication.objects.filter(user=user).order_by('-applied_at')[:5],
             'recommended_jobs': Job.objects.all()[:4],  # 추천 로직은 나중에 구현
             'completed_resumes': Resume.objects.filter(user=user, is_completed=True).count(),
             'draft_resumes': Resume.objects.filter(user=user, is_completed=False).count(),
@@ -516,7 +502,7 @@ class JobAnalyticsView(TemplateView):
         context['avg_salary'] = Job.objects.aggregate(Avg('salary'))['salary__avg']
         context['avg_experience'] = Job.objects.aggregate(Avg('experience_required'))['experience_required__avg']
         context['avg_applicants'] = \
-        JobApplication.objects.values('job').annotate(count=Count('id')).aggregate(Avg('count'))['count__avg']
+        context['avg_applicants'] = JobApplication.objects.values('job').annotate(count=Count('id')).aggregate(Avg('count'))['count__avg']
 
         # 채용 추이 데이터
         trends = Job.objects.annotate(
@@ -544,3 +530,32 @@ class JobAnalyticsView(TemplateView):
         ).order_by('-count')[:9]
 
         return context
+
+
+class CustomLoginView(LoginView):
+    form_class = CustomAuthenticationForm
+    template_name = 'jobs/login.html'
+
+    def form_valid(self, form):
+        # 로그인 시도 횟수 체크
+        username = form.cleaned_data.get('username')
+        attempts = self.request.session.get('login_attempts', 0)
+
+        if attempts >= 5:  # 5회 이상 실패시
+            minutes_locked = 30
+            messages.error(
+                self.request,
+                f'너무 많은 로그인 시도가 있었습니다. {minutes_locked}분 후에 다시 시도해주세요.'
+            )
+            return self.form_invalid(form)
+
+        # 성공시 시도 횟수 초기화
+        self.request.session['login_attempts'] = 0
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # 실패시 시도 횟수 증가
+        attempts = self.request.session.get('login_attempts', 0)
+        self.request.session['login_attempts'] = attempts + 1
+
+        return super().form_invalid(form)
