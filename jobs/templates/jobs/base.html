@@ -90,27 +90,25 @@
             </button>
 
             <div id="navbarNav" class="collapse navbar-collapse">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'jobs:job_search' %}">채용정보</a>
-                    </li>
-                </ul>
+               <ul class="navbar-nav me-auto">
+                   <img src="{% static 'images/senior_banner.jpg' %}" alt="시니어 구인구직" class="img-fluid" style="max-height: 120px; margin: 0 200px;">
+               </ul>
 
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'jobs:profile' %}">프로필</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'jobs:logout' %}">로그아웃</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'jobs:login' %}">로그인</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'jobs:signup' %}">회원가입</a>
-                        </li>
+                       <a href="{% url 'jobs:profile' %}" class="nav-link btn btn-outline-primary mx-1 px-3 rounded-pill">프로필</a>
+                   </li>
+                   <li class="nav-item">
+                       <a href="{% url 'jobs:logout' %}" class="nav-link btn btn-outline-danger mx-1 px-3 rounded-pill">로그아웃</a>
+                   </li>
+               {% else %}
+                   <li class="nav-item">
+                       <a href="{% url 'jobs:login' %}" class="nav-link btn btn-outline-primary mx-1 px-3 rounded-pill hover-shadow">로그인</a>
+                   </li>
+                   <li class="nav-item">
+                       <a href="{% url 'jobs:signup' %}" class="nav-link btn btn-primary mx-1 px-3 rounded-pill hover-shadow">회원가입</a>
+                   </li>
                     {% endif %}
                 </ul>
             </div>
@@ -149,10 +147,10 @@
 
 <style>
 /* 상단 로고와 하단 로고 공통 스타일 */
-.logo-text {
-    font-family: 'Noto Sans KR', sans-serif;
-    color: #0061f2;
-    transition: color 0.2s ease;
+.hover-shadow:hover {
+   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+   transform: translateY(-1px);
+   transition: all 0.2s ease;
 }
 
 /* 푸터 스타일 조정 */

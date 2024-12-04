@@ -28,11 +28,10 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
 from .api.serializers import ResumeSerializer
-from .forms import SignUpForm, UserUpdateForm, ResumeForm, CustomAuthenticationForm, JobPostForm
+from .forms import SignUpForm, UserUpdateForm, ResumeForm, CustomAuthenticationForm, JobPostForm, JobSearchForm
 from .models import (JobCategory, Job, EmailVerification, Resume, Notification,
                      SubCategory, JobApplication, JobTrend, BookmarkedJob,
                      Community, Mentoring, CompanyReview)
-from .utils import send_application_update
 
 
 class NotificationListView(LoginRequiredMixin, ListView):
@@ -62,6 +61,7 @@ class MainPageView(ListView):
         context['recent_jobs'] = Job.objects.all().order_by('-created_at')[:8]
         return context
 
+
 class JobSearchView(ListView):
     model = Job
     template_name = 'jobs/search_results.html'
@@ -70,24 +70,28 @@ class JobSearchView(ListView):
 
     def get_queryset(self):
         queryset = Job.objects.all()
-        q = self.request.GET.get('q')
-        location = self.request.GET.get('location')
-        job_type = self.request.GET.get('job_type')
+        form = JobSearchForm(self.request.GET)
 
-        if q:
-            queryset = queryset.filter(
-                Q(title__icontains=q) |
-                Q(company__icontains=q) |
-                Q(description__icontains=q)
-            )
+        if form.is_valid():
+            if form.cleaned_data.get('search'):
+                search_query = form.cleaned_data['search']
+                queryset = queryset.filter(
+                    Q(title__icontains=search_query) |
+                    Q(company__icontains=search_query) |
+                    Q(description__icontains=search_query)
+                )
 
-        if location:
-            queryset = queryset.filter(location__icontains=location)
-
-        if job_type:
-            queryset = queryset.filter(work_type=job_type)
+            if form.cleaned_data.get('experience'):
+                experience = form.cleaned_data['experience']
+                if experience:
+                    queryset = queryset.filter(experience_required=experience)
 
         return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = JobSearchForm(self.request.GET)
+        return context
 
 class CategoryDetailView(DetailView):
     model = JobCategory

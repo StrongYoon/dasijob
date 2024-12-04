@@ -57,6 +57,21 @@ class Job(models.Model):
         ('FREE', '프리랜서'),
     ]
 
+    EXPERIENCE_CHOICES = [
+        (0, '경력무관'),
+        (1, '1년 이상'),
+        (3, '3년 이상'),
+        (5, '5년 이상'),
+        (7, '7년 이상'),
+        (10, '10년 이상')
+    ]
+
+    experience_required = models.IntegerField(
+        choices=EXPERIENCE_CHOICES,
+        default=0,
+        verbose_name='필요 경력'
+    )
+
     title = models.CharField(max_length=200)
     company = models.CharField(max_length=100)
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='jobs')
@@ -291,6 +306,18 @@ class Company(models.Model):
     location = models.CharField(max_length=100)
     website = models.URLField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+class Region(models.Model):
+    name = models.CharField(max_length=100)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
+    level = models.IntegerField()
+    code = models.CharField(max_length=10, unique=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name

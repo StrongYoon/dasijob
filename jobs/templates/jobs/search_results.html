@@ -5,39 +5,31 @@
 <div class="container py-4">
     <!-- Search Bar Section -->
     <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form class="row g-3" method="GET">
-                <!-- Keyword Search -->
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control" placeholder="직무, 회사, 키워드" 
-                               value="{{ request.GET.q }}">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="bi bi-search"></i> 검색
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Filters -->
-                <div class="col-md-6">
-                    <div class="d-flex gap-2">
-                        <select name="location" class="form-select">
-                            <option value="">지역 전체</option>
-                            <option value="seoul" {% if request.GET.location == 'seoul' %}selected{% endif %}>서울</option>
-                            <option value="gyeonggi" {% if request.GET.location == 'gyeonggi' %}selected{% endif %}>경기</option>
-                            <option value="incheon" {% if request.GET.location == 'incheon' %}selected{% endif %}>인천</option>
-                        </select>
-                        <select name="job_type" class="form-select">
-                            <option value="">근무형태 전체</option>
-                            <option value="full" {% if request.GET.job_type == 'full' %}selected{% endif %}>정규직</option>
-                            <option value="contract" {% if request.GET.job_type == 'contract' %}selected{% endif %}>계약직</option>
-                            <option value="part" {% if request.GET.job_type == 'part' %}selected{% endif %}>시간제</option>
-                        </select>
-                    </div>
-                </div>
-            </form>
+    <div class="card-body">
+        <h5 class="mb-3">{{ job.title }}</h5>
+        <div class="mb-2">
+            <span class="badge bg-light text-dark me-2">
+                {% if job.experience_required == 0 %}
+                    경력무관
+                {% else %}
+                    {{ job.get_experience_required_display }}
+                {% endif %}
+            </span>
+            {{ job.location }}
         </div>
+
     </div>
+            <div class="col-md-3">
+                {{ form.experience }}
+            </div>
+            <div class="col-md-5">
+                <div class="d-flex gap-2">
+                    지역 전체 서울 경기 인천 대전 대구 부산 광주 울산 강원도 근무형태 전체 정규직 계약직 시간제
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
     <!-- Results Stats -->
     <div class="d-flex justify-content-between align-items-center mb-4">

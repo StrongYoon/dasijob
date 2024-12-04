@@ -16,11 +16,13 @@ from pathlib import Path
 import environ
 from dotenv import load_dotenv
 
-load_dotenv()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -215,9 +217,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # 이메일 설정
 
-env = environ.Env()
-environ.Env.read_env()
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.naver.com')
 EMAIL_PORT = env.int('EMAIL_PORT', default=587)
@@ -235,3 +234,11 @@ CELERY_TIMEZONE = 'UTC'
 
 # Celery Beat 설정
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# API 키 추가
+VWORLD_API_KEY = '08FDC254-4A8B-373F-96A4-4864C4468622'
+
+ADMINISTRATIVE_DISTRICT_API_KEY = 'fJtseiwOOFBp9sLzORQxa1RAJl2oI8WCiqwFFZq530S1X0VaIdsHDtUrEc1mjjlf6Y9E%2BMJmCM8%2BO434xejaNw%3D%3D'
+
+NAVER_MAPS_CLIENT_ID = 'ytvynitkhf'
+NAVER_MAPS_CLIENT_SECRET = 'j11LhtfOhWEAEy8EhJpLzDhpFmg1jcWXfO3dIXHc'

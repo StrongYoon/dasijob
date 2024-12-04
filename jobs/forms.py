@@ -93,3 +93,17 @@ class CustomAuthenticationForm(AuthenticationForm):
             'placeholder': '비밀번호를 입력하세요'
         })
 
+
+class JobSearchForm(forms.Form):
+    search = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': '검색어를 입력하세요'
+    }))
+
+    experience = forms.ChoiceField(
+        required=False,
+        choices=[('', '경력선택')] + Job.EXPERIENCE_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        })
+    )
