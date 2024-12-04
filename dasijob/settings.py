@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
+import environ
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -72,6 +73,14 @@ CHANNEL_LAYERS = {
     },
 }
 
+# 권한 관련 설정
+AUTH_USER_MODEL = 'auth.User'
+
+# 로그인 관련 설정
+LOGIN_URL = 'jobs:login'
+LOGIN_REDIRECT_URL = 'jobs:main'
+LOGOUT_REDIRECT_URL = 'jobs:main'
+
 ASGI_APPLICATION = 'dasijob.asgi.application'
 
 MIDDLEWARE = [
@@ -91,6 +100,7 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.kakao.KakaoOAuth2',
     'social_core.backends.naver.NaverOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'jobs.backends.CustomAuthBackend',
 )
 
 PROTECTED_URLS = [
@@ -204,12 +214,16 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # 이메일 설정
+
+env = environ.Env()
+environ.Env.read_env()
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'itnerdapc@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.naver.com')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
 # Celery 설정
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
