@@ -52,4 +52,6 @@ urlpatterns = [
     path('resume/builder/', views.ResumeBuilderView.as_view(), name='resume_builder'),
     path('companies/<int:pk>/reviews/', views.CompanyReviewListView.as_view(), name='company_reviews'),
     path('', include(router.urls)),
+    path('job/post/', views.job_post_view, name='job_post'),
+    path('api/regions/<str:sido_code>/districts/', views.get_districts, name='get_districts'),
 ]

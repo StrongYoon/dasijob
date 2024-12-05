@@ -321,3 +321,16 @@ class Region(models.Model):
 
     def __str__(self):
         return self.name
+
+def get_full_name(self):
+    """지역의 전체 이름을 반환 (예: '서울특별시 강남구')"""
+    if self.level == 1:
+        return self.name
+    elif self.level == 2:
+        return f"{self.parent.name} {self.name}"
+    return f"{self.parent.parent.name} {self.parent.name} {self.name}"
+
+@property
+def children(self):
+    """하위 지역 목록 반환"""
+    return Region.objects.filter(parent=self)

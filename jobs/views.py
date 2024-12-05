@@ -13,7 +13,8 @@ from django.contrib.auth.views import (
 from django.core.mail import send_mail
 from django.db.models import Q, Count, Avg
 from django.db.models.functions import TruncDate
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -27,6 +28,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
+from jobs.models import Region
 from .api.serializers import ResumeSerializer
 from .forms import SignUpForm, UserUpdateForm, ResumeForm, CustomAuthenticationForm, JobPostForm, JobSearchForm
 from .models import (JobCategory, Job, EmailVerification, Resume, Notification,
@@ -400,15 +402,38 @@ class JobPostCreateView(LoginRequiredMixin, CreateView):
     template_name = 'jobs/job_post_form.html'
     success_url = reverse_lazy('jobs:main')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 시도 목록 추가
+        context['regions'] = Region.objects.filter(level=1).order_by('name')
+        return context
+
     def form_valid(self, form):
-        form.instance.created_at = timezone.now()
+        # 시도/시군구 처리
+        sigungu_code = self.request.POST.get('sigungu')
+        if sigungu_code:
+            try:
+                region = Region.objects.get(code=sigungu_code)
+                form.instance.location = region
+            except Region.DoesNotExist:
+                form.add_error('location', '올바른 지역을 선택해주세요.')
+                return self.form_invalid(form)
+
         messages.success(self.request, '채용공고가 성공적으로 등록되었습니다.')
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = JobCategory.objects.all()
-        return context
+
+# 시군구 목록을 가져오는 API 뷰 추가
+from django.http import JsonResponse
+
+
+def get_districts(request, sido_code):
+    districts = Region.objects.filter(
+        parent__code=sido_code,
+        level=2
+    ).order_by('name').values('code', 'name')
+
+    return JsonResponse(list(districts), safe=False)
 
 class ResumeCreateView(LoginRequiredMixin, CreateView):
     model = Resume
@@ -739,3 +764,19 @@ class CompanyReviewListView(LoginRequiredMixin, ListView):
         context['company'] = Company.objects.get(pk=self.kwargs['pk'])
         return context
 
+
+def job_post_view(request):
+    # 시도 목록 가져오기
+    regions = Region.objects.filter(level=1).order_by('name')
+    return render(request, 'jobs/job_post.html', {
+        'regions': regions,
+    })
+
+
+def get_districts(request, sido_code):
+    districts = Region.objects.filter(
+        parent__code=sido_code,
+        level=2
+    ).order_by('name').values('code', 'name')
+
+    return JsonResponse(list(districts), safe=False)

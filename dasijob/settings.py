@@ -217,7 +217,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # 이메일 설정
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = env('EMAIL_HOST_USER', default='webmaster@localhost')
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.naver.com')
 EMAIL_PORT = env.int('EMAIL_PORT', default=587)
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
