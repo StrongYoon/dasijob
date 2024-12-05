@@ -20,6 +20,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.html import strip_tags
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.views.generic import UpdateView
 from rest_framework import viewsets
@@ -61,6 +62,8 @@ class MainPageView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['recent_jobs'] = Job.objects.all().order_by('-created_at')[:8]
+        context['regions'] = Region.objects.filter(level=1).order_by('name')
+        return context
         return context
 
 
@@ -426,15 +429,6 @@ class JobPostCreateView(LoginRequiredMixin, CreateView):
 # 시군구 목록을 가져오는 API 뷰 추가
 from django.http import JsonResponse
 
-
-def get_districts(request, sido_code):
-    districts = Region.objects.filter(
-        parent__code=sido_code,
-        level=2
-    ).order_by('name').values('code', 'name')
-
-    return JsonResponse(list(districts), safe=False)
-
 class ResumeCreateView(LoginRequiredMixin, CreateView):
     model = Resume
     form_class = ResumeForm
@@ -552,34 +546,6 @@ class JobAnalyticsView(TemplateView):
         return context
 
 
-class CustomLoginView(LoginView):
-    form_class = CustomAuthenticationForm
-    template_name = 'jobs/login.html'
-
-    def form_valid(self, form):
-        # 로그인 시도 횟수 체크
-        username = form.cleaned_data.get('username')
-        attempts = self.request.session.get('login_attempts', 0)
-
-        if attempts >= 5:  # 5회 이상 실패시
-            minutes_locked = 30
-            messages.error(
-                self.request,
-                f'너무 많은 로그인 시도가 있었습니다. {minutes_locked}분 후에 다시 시도해주세요.'
-            )
-            return self.form_invalid(form)
-
-        # 성공시 시도 횟수 초기화
-        self.request.session['login_attempts'] = 0
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        # 실패시 시도 횟수 증가
-        attempts = self.request.session.get('login_attempts', 0)
-        self.request.session['login_attempts'] = attempts + 1
-
-        return super().form_invalid(form)
-
 class ModernDashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'jobs/modern_dashboard.html'
 
@@ -589,16 +555,16 @@ class AnalyticsDashboardView(LoginRequiredMixin, TemplateView):
 class ResumeBuilderView(LoginRequiredMixin, TemplateView):
     template_name = 'jobs/resume_builder.html'
 
-class ResumeViewSet(viewsets.ModelViewSet):
-    queryset = Resume.objects.all()
-    permission_classes = [IsAuthenticated]
-
-    @action(detail=False, methods=['post'])
-    def save_builder_content(self, request):
-        resume = Resume.objects.get(id=request.data.get('id'))
-        resume.content_json = request.data.get('content')
-        resume.save()
-        return Response({'status': 'success'})
+# class ResumeViewSet(viewsets.ModelViewSet):
+#     queryset = Resume.objects.all()
+#     permission_classes = [IsAuthenticated]
+#
+#     @action(detail=False, methods=['post'])
+#     def save_builder_content(self, request):
+#         resume = Resume.objects.get(id=request.data.get('id'))
+#         resume.content_json = request.data.get('content')
+#         resume.save()
+#         return Response({'status': 'success'})
 
 class AnalyticsViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
@@ -780,3 +746,15 @@ def get_districts(request, sido_code):
     ).order_by('name').values('code', 'name')
 
     return JsonResponse(list(districts), safe=False)
+
+@csrf_exempt
+def get_regions(request):
+    level = request.GET.get('level', '1')
+    parent_code = request.GET.get('parent_code', None)
+
+    queryset = Region.objects.filter(level=level)
+    if parent_code:
+        queryset = queryset.filter(parent__code=parent_code)
+
+    regions = list(queryset.values('code', 'name'))
+    return JsonResponse(regions, safe=False)

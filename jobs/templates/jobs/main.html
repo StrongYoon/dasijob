@@ -1,90 +1,138 @@
 {% extends 'jobs/base.html' %}
 {% load static %}
 
-{% block title %}시니어를 위한 구인구직 플랫폼{% endblock %}
-
 {% block content %}
-
-<!-- 히어로 섹션 -->
-<div class="hero-section position-relative bg-gradient-primary text-white overflow-hidden">
+<div class="hero-section position-relative bg-primary text-white overflow-hidden">
     <div class="container position-relative z-10">
-        <div class="row justify-content-between align-items-center py-1"> <!-- 패딩 축소 -->
+        <div class="row justify-content-between align-items-center py-4">
             <div class="col-lg-6">
-                <div class="hero-content px-3"> <!-- 좌우 패딩 추가 -->
-                    <h1 class="h3 fw-bold mb-1">시니어의 경험이 새로운 기회가 됩니다</h1> <!-- 크기 축소 -->
-                    <p class="small mb-2">풍부한 경험과 전문성을 가진 시니어를 위한 맞춤형 구인구직 플랫폼</p> <!-- 간격 축소 -->
+                <div class="hero-content px-3">
+                    <h1 class="h3 fw-bold mb-3" style="text-shadow: 2px 2px 2px rgba(0,0,0,0.5); text-wrap: nowrap;">시니어의 경험이 새로운 기회가 됩니다</h1>
+                    <p class="lead mb-4" style="text-shadow: 2px 2px 2px rgba(0,0,0,0.3); text-wrap: nowrap;">{{"풍부한 경험과 전문성을 가진 시니어를 위한 맞춤형 구인구직&nbsp;플랫폼"|safe }}</p>
                 </div>
-            </div>
-            <div class="col-lg-5 d-none d-lg-block">
-                <div class="hero-image" style="max-height: 150px;"> <!-- 이미지 높이 제한 -->
-                    <img src="{% static 'images/hero-image.svg' %}" alt="시니어 일자리" class="img-fluid rounded-2 shadow-sm">
-                </div>
-            </div>
-        </div>
 
-        <!-- 검색 바 -->
-        <div class="search-bar-wrapper">
-            <div class="card border-0 shadow-sm rounded-3 mt-2 mb-n2"> <!-- 마진 조정 -->
-                <div class="card-body py-1 px-2"> <!-- 패딩 축소 -->
-                    <form action="{% url 'jobs:job_search' %}" method="GET" class="row g-1"> <!-- gap 축소 -->
-                        <div class="col-md-5">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text border-0 bg-transparent py-0">
-                                    <i class="bi bi-search small"></i>
-                                </span>
-                                <input type="text" name="keyword" class="form-control form-control-sm border-0" placeholder="직종, 키워드">
+                <!-- 검색 폼 -->
+                <div class="search-section bg-white rounded shadow-lg p-4">
+                    <form action="{% url 'jobs:job_search' %}" method="GET">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <select name="sido" id="sido" class="form-select form-select-lg" onchange="loadSigungu(this.value)">
+                                    <option value="">시/도 선택</option>
+                                    {% for region in regions %}
+                                        <option value="{{ region.code }}">{{ region.name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text border-0 bg-transparent py-0">
-                                    <i class="bi bi-geo-alt small"></i>
-                                </span>
-                                <input type="text" name="location" class="form-control form-control-sm border-0" placeholder="지역">
+
+                            <div class="col-md-4">
+                                <select name="sigungu" id="sigungu" class="form-select form-select-lg" onchange="loadDong(this.value)" disabled>
+                                    <option value="">시/군/구 선택</option>
+                                </select>
                             </div>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary btn-sm w-100 py-1">검색</button>
+
+                            <div class="col-md-4">
+                                <select name="dong" id="dong" class="form-select form-select-lg" disabled>
+                                    <option value="">동/읍/면 선택</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="input-group input-group-lg">
+                                    <input type="text" name="keyword" class="form-control"
+                                           placeholder="찾으시는 일자리를 입력해주세요 (예: 경비원, 주차관리)">
+                                    <button class="btn btn-primary px-4" type="submit">
+                                        검색
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <small class="text-muted">인기 검색어:</small>
+                                    {% for term in popular_terms %}
+                                        <button type="button" onclick="setKeyword('{{ term }}')"
+                                                class="btn btn-sm btn-light">{{ term }}</button>
+                                    {% endfor %}
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- 웨이브 효과 -->
-    <div class="wave-effect-sm">
-        <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
-            <defs>
-                <path id="wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
-            </defs>
-            <g class="parallax">
-                <use xlink:href="#wave" x="48" y="0" fill="rgba(255,255,255,0.7)" />
-                <use xlink:href="#wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
-                <use xlink:href="#wave" x="48" y="5" fill="rgba(255,255,255,0.3)" />
-                <use xlink:href="#wave" x="48" y="7" fill="#ffffff" />
-            </g>
-        </svg>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="hero-image" style="max-height: 150px;">
+                    <img src="{% static 'images/hero-image.svg' %}" alt="시니어 일자리" class="img-fluid rounded-2 shadow-sm">
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- 직종별 채용정보 섹션 -->
-<section class="py-4 bg-light"> <!-- 상단 마진 제거하고 패딩 축소 -->
-    <div class="container">
-        <h2 class="text-center mb-3">직종별 채용정보</h2>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3"> <!-- gap 축소 -->
-            {% for category in categories %}
+<!-- 검색 기능을 위한 JavaScript -->
+{% block extra_js %}
+<script>
+function loadSigungu(sidoCode) {
+    if (!sidoCode) return;
+
+    const sigunguSelect = document.getElementById('sigungu');
+    const dongSelect = document.getElementById('dong');
+
+    fetch(`/api/regions/?level=2&parent_code=${sidoCode}`)
+        .then(response => response.json())
+        .then(data => {
+            sigunguSelect.innerHTML = '<option value="">시/군/구 선택</option>';
+            data.forEach(region => {
+                sigunguSelect.add(new Option(region.name, region.code));
+            });
+            sigunguSelect.disabled = false;
+            dongSelect.disabled = true;
+            dongSelect.innerHTML = '<option value="">동/읍/면 선택</option>';
+        })
+        .catch(error => {
+            console.error('Error loading sigungu:', error);
+        });
+}
+
+function loadDong(sigunguCode) {
+    if (!sigunguCode) return;
+
+    const dongSelect = document.getElementById('dong');
+
+    fetch(`/api/regions/?level=3&parent_code=${sigunguCode}`)
+        .then(response => response.json())
+        .then(data => {
+            dongSelect.innerHTML = '<option value="">동/읍/면 선택</option>';
+            data.forEach(region => {
+                dongSelect.add(new Option(region.name, region.code));
+            });
+            dongSelect.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error loading dong:', error);
+        });
+}
+
+function setKeyword(term) {
+    document.querySelector('input[name="keyword"]').value = term;
+}
+</script>
+{% endblock %}
+
+<!-- 카테고리 및 최근 채용정보 표시 -->
+<div class="container mt-4">
+    <h2 class="text-center mb-3">직종별 채용정보</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+        {% for category in categories %}
             <div class="col">
                 <div class="card h-100 shadow-sm hover-card">
                     <div class="card-body">
-                        <div class="d-flex align-items-center mb-2">
-                            <h5 class="card-title mb-0">
-                                <a href="{% url 'jobs:category_detail' category.id %}" class="text-decoration-none text-dark">
-                                    {{ category.name }}
-                                </a>
-                            </h5>
-                        </div>
-                        <p class="card-text small">{{ category.description }}</p>
+                        <h5 class="card-title">
+                            <a href="{% url 'jobs:category_detail' category.id %}" class="text-decoration-none text-dark">
+                                {{ category.name }}
+                            </a>
+                        </h5>
+                        <p>{{ category.description }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="badge bg-primary rounded-pill">총 {{ category.subcategories.count }}개 분야</span>
                             <a href="{% url 'jobs:category_detail' category.id %}" class="btn btn-outline-primary btn-sm">상세보기</a>
@@ -92,93 +140,7 @@
                     </div>
                 </div>
             </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<!-- 최근 채용정보 섹션 -->
-<section class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="h4 mb-0">최근 채용정보</h2>
-        <a href="{% url 'jobs:job_list_by_category' subcategory_id=1 %}" class="btn btn-outline-primary btn-sm">전체보기</a>
-    </div>
-
-    <div class="row g-3">
-        {% for job in recent_jobs %}
-        <div class="col-12 col-md-6 col-lg-3">
-            <div class="card h-100 shadow-sm hover-shadow">
-                <div class="card-body">
-                    <h3 class="h6 card-title mb-2">
-                        <a href="{% url 'jobs:job_detail' job.id %}" class="text-decoration-none text-dark">
-                            {{ job.title }}
-                        </a>
-                    </h3>
-                    <p class="card-text small mb-1">{{ job.company }}</p>
-                    <p class="card-text small mb-1">{{ job.location }}</p>
-                    <p class="card-text small mb-1">{{ job.get_work_type_display }}</p>
-                    <p class="card-text small">{{ job.salary }}</p>
-                </div>
-            </div>
-        </div>
         {% endfor %}
     </div>
-</section>
-
-<style>
-.hero-section {
-    background: linear-gradient(135deg, #0061f2 0%, #6c8fff 100%);
-    padding-top: 0.5rem;  /* 패딩 대폭 축소 */
-    padding-bottom: 1.5rem;
-}
-
-.wave-effect-sm {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 30px;  /* 높이 축소 */
-    overflow: hidden;
-}
-
-.waves {
-    height: 30px;  /* 높이 축소 */
-}
-
-.parallax > use {
-    animation: move-forever 15s cubic-bezier(.55,.5,.45,.5) infinite;  /* 애니메이션 시간 축소 */
-}
-
-.form-control-sm {
-    padding: 0.25rem 0.5rem;  /* 입력창 패딩 축소 */
-    font-size: 0.875rem;
-}
-
-.btn-sm {
-    padding: 0.25rem 0.5rem;  /* 버튼 패딩 축소 */
-    font-size: 0.875rem;
-}
-
-.hover-card {
-    transition: transform 0.2s ease-in-out;
-}
-
-.hover-card:hover {
-    transform: translateY(-3px);  /* 호버 효과 축소 */
-}
-
-.card {
-    border: none;
-    transition: all 0.2s ease;
-}
-
-/* 애니메이션 키프레임 축소 */
-@keyframes move-forever {
-    0% { transform: translate3d(-45px,0,0); }
-    100% { transform: translate3d(45px,0,0); }
-}
-</style>
+</div>
 {% endblock %}
-{#1#}
-{#2#}
-{#3#}

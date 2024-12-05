@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
@@ -54,4 +56,9 @@ urlpatterns = [
     path('', include(router.urls)),
     path('job/post/', views.job_post_view, name='job_post'),
     path('api/regions/<str:sido_code>/districts/', views.get_districts, name='get_districts'),
+    path('api/regions/', views.get_regions, name='api_regions'),
 ]
+
+# Debug=True 일 때만 static 파일 서빙
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

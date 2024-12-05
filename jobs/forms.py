@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 
-from .models import Resume, JobApplication, Job
+from .models import Resume, JobApplication, Job, Region
 
 
 class UserUpdateForm(forms.ModelForm):  # Form 대신 ModelForm 사용
@@ -95,15 +95,24 @@ class CustomAuthenticationForm(AuthenticationForm):
 
 
 class JobSearchForm(forms.Form):
-    search = forms.CharField(required=False, widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': '검색어를 입력하세요'
-    }))
-
-    experience = forms.ChoiceField(
+    sido = forms.ModelChoiceField(
+        queryset=Region.objects.filter(level=1),
+        empty_label="시/도 선택",
+        required=False
+    )
+    sigungu = forms.ModelChoiceField(
+        queryset=Region.objects.none(),
+        empty_label="시/군/구 선택",
+        required=False
+    )
+    dong = forms.ModelChoiceField(
+        queryset=Region.objects.none(),
+        empty_label="동/읍/면 선택",
+        required=False
+    )
+    keyword = forms.CharField(
         required=False,
-        choices=[('', '경력선택')] + Job.EXPERIENCE_CHOICES,
-        widget=forms.Select(attrs={
-            'class': 'form-control'
+        widget=forms.TextInput(attrs={
+            'placeholder': '찾으시는 일자리를 입력해주세요'
         })
     )
